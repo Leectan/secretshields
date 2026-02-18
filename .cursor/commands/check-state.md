@@ -1,0 +1,1 @@
+Read workflow_state.md and report a clean status dashboard showing: current Phase and Status, total tasks in ## Plan and how many are completed, the last 3 entries from ## Log, whether a CompletionReport exists, and the current CycleCount.

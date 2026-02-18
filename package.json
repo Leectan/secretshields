@@ -1,0 +1,200 @@
+{
+  "name": "redakt",
+  "displayName": "Redakt — Secret Shield for AI Chat",
+  "description": "Local-first clipboard secret masking. Prevents accidental secret leakage into AI chats, terminals, and pastebins.",
+  "version": "0.1.1",
+  "publisher": "secretshields",
+  "license": "MIT",
+  "icon": "media/shield.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/secretshields/redakt"
+  },
+  "homepage": "https://github.com/secretshields/redakt#readme",
+  "bugs": {
+    "url": "https://github.com/secretshields/redakt/issues"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "Security"
+  ],
+  "keywords": [
+    "secrets",
+    "security",
+    "clipboard",
+    "masking",
+    "ai-safety"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "redakt.maskClipboard",
+        "title": "Redakt: Mask Clipboard Now"
+      },
+      {
+        "command": "redakt.restoreLastSecret",
+        "title": "Redakt: Restore Last Secret (Time-Limited)"
+      },
+      {
+        "command": "redakt.showExposureLog",
+        "title": "Redakt: Show Exposure Log"
+      },
+      {
+        "command": "redakt.clearExposureLog",
+        "title": "Redakt: Clear Exposure Log"
+      },
+      {
+        "command": "redakt.markRotated",
+        "title": "Redakt: Mark Secret as Rotated"
+      }
+    ],
+    "configuration": {
+      "title": "Redakt",
+      "properties": {
+        "redakt.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable or disable Redakt clipboard monitoring."
+        },
+        "redakt.autoMask": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically mask secrets in clipboard when detected."
+        },
+        "redakt.restoreTTLSeconds": {
+          "type": "number",
+          "default": 60,
+          "minimum": 10,
+          "maximum": 300,
+          "description": "Seconds to allow restoring the original secret after masking."
+        },
+        "redakt.pollIntervalMs": {
+          "type": "number",
+          "default": 1000,
+          "minimum": 500,
+          "maximum": 5000,
+          "description": "Clipboard polling interval in milliseconds."
+        },
+        "redakt.detectors.awsKeys": {
+          "type": "boolean",
+          "default": true,
+          "description": "Detect AWS access keys and secret keys."
+        },
+        "redakt.detectors.githubTokens": {
+          "type": "boolean",
+          "default": true,
+          "description": "Detect GitHub personal access tokens."
+        },
+        "redakt.detectors.stripeKeys": {
+          "type": "boolean",
+          "default": true,
+          "description": "Detect Stripe API keys."
+        },
+        "redakt.detectors.openaiKeys": {
+          "type": "boolean",
+          "default": true,
+          "description": "Detect OpenAI API keys."
+        },
+        "redakt.detectors.anthropicKeys": {
+          "type": "boolean",
+          "default": true,
+          "description": "Detect Anthropic API keys."
+        },
+        "redakt.detectors.googleApiKeys": {
+          "type": "boolean",
+          "default": true,
+          "description": "Detect Google API keys."
+        },
+        "redakt.detectors.databaseUrls": {
+          "type": "boolean",
+          "default": true,
+          "description": "Detect database connection URLs with passwords."
+        },
+        "redakt.detectors.sshPrivateKeys": {
+          "type": "boolean",
+          "default": true,
+          "description": "Detect SSH private key headers."
+        },
+        "redakt.detectors.jwts": {
+          "type": "boolean",
+          "default": true,
+          "description": "Detect JSON Web Tokens."
+        },
+        "redakt.countdownMinutes.critical": {
+          "type": "number",
+          "default": 15,
+          "description": "Rotation reminder countdown (minutes) for critical severity secrets."
+        },
+        "redakt.countdownMinutes.high": {
+          "type": "number",
+          "default": 60,
+          "description": "Rotation reminder countdown (minutes) for high severity secrets."
+        },
+        "redakt.countdownMinutes.medium": {
+          "type": "number",
+          "default": 240,
+          "description": "Rotation reminder countdown (minutes) for medium severity secrets."
+        },
+        "redakt.editorPasteMasking.mode": {
+          "type": "string",
+          "default": "offer",
+          "enum": ["off", "offer", "auto"],
+          "enumDescriptions": [
+            "Redakt does not participate in editor paste at all.",
+            "Show 'Paste with Redakt masking' as an alternative in the paste widget. Normal paste remains default.",
+            "Attempt to make masked paste the default option. Ordering is best-effort and depends on other providers."
+          ],
+          "description": "Controls editor paste masking behavior. 'offer' shows a masked paste option in the paste widget; 'auto' tries to make it default; 'off' disables it."
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "redakt",
+          "title": "Redakt",
+          "icon": "media/shield.svg"
+        }
+      ]
+    },
+    "views": {
+      "redakt": [
+        {
+          "id": "redakt.exposureLog",
+          "name": "Exposure Log"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "build": "node esbuild.config.mjs",
+    "watch": "node esbuild.config.mjs --watch",
+    "lint": "eslint src --ext ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:integration": "echo 'Integration tests require VS Code — run manually with @vscode/test-electron'",
+    "package": "npx vsce package",
+    "vscode:prepublish": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "@vscode/test-electron": "^2.3.8",
+    "@vscode/vsce": "^2.22.0",
+    "esbuild": "^0.20.0",
+    "eslint": "^8.56.0",
+    "ovsx": "^0.8.0",
+    "prettier": "^3.2.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.2.0"
+  }
+}

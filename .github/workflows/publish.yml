@@ -1,0 +1,59 @@
+name: Publish Extension
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Run tests
+        run: npm test
+
+      - name: Package VSIX
+        run: npx vsce package --no-dependencies
+
+      # Publish to VS Code Marketplace
+      # Requires VSCE_PAT secret set in GitHub repo settings
+      # Get a PAT from https://dev.azure.com/ -> User Settings -> Personal Access Tokens
+      - name: Publish to VS Code Marketplace
+        run: npx vsce publish --no-dependencies
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+
+      # Publish to OpenVSX (for Cursor and other VS Code forks)
+      # Requires OVSX_PAT secret set in GitHub repo settings
+      # Get a token from https://open-vsx.org/
+      - name: Publish to OpenVSX
+        run: npx ovsx publish *.vsix
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+
+# Setup instructions:
+# 1. VS Code Marketplace:
+#    - Create a publisher at https://marketplace.visualstudio.com/manage
+#    - Set the "publisher" field in package.json to match
+#    - Create a Personal Access Token at https://dev.azure.com/
+#    - Add it as VSCE_PAT secret in your GitHub repo settings
+#
+# 2. OpenVSX (Cursor):
+#    - Create an account at https://open-vsx.org/
+#    - Create a namespace matching your publisher name
+#    - Generate an access token
+#    - Add it as OVSX_PAT secret in your GitHub repo settings
