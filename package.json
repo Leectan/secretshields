@@ -8,11 +8,11 @@
   "icon": "media/shield.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/secretshields/redakt"
+    "url": "https://github.com/Leectan/redakt"
   },
-  "homepage": "https://github.com/secretshields/redakt#readme",
+  "homepage": "https://leectan.github.io/redakt/",
   "bugs": {
-    "url": "https://github.com/secretshields/redakt/issues"
+    "url": "https://github.com/Leectan/redakt/issues"
   },
   "engines": {
     "vscode": "^1.85.0"
