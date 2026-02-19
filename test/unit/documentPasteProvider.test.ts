@@ -57,4 +57,15 @@ describe("processPasteText", () => {
       TRUE_POSITIVES.githubPat.slice(4, -4)
     );
   });
+
+  it("returns null when the matching detector is disabled via enabledPatterns", () => {
+    // AWS key should be detected with all detectors enabled
+    const withAll = processPasteText(TRUE_POSITIVES.awsAccessKeyId);
+    expect(withAll).not.toBeNull();
+
+    // Disable AWS detector by omitting its config key from the enabled set
+    const onlyGitHub = new Set(["secretshields.detectors.githubTokens"]);
+    const withoutAws = processPasteText(TRUE_POSITIVES.awsAccessKeyId, onlyGitHub);
+    expect(withoutAws).toBeNull();
+  });
 });

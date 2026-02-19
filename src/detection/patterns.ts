@@ -46,7 +46,7 @@ export const PATTERNS: SecretPattern[] = [
     prefixLen: 4,
     suffixLen: 4,
     entropyThreshold: 0,
-    configKey: "redakt.detectors.awsKeys",
+    configKey: "secretshields.detectors.awsKeys",
   },
   {
     id: "aws-secret-access-key",
@@ -59,7 +59,7 @@ export const PATTERNS: SecretPattern[] = [
     prefixLen: 4,
     suffixLen: 4,
     entropyThreshold: 3.5,
-    configKey: "redakt.detectors.awsKeys",
+    configKey: "secretshields.detectors.awsKeys",
   },
   {
     id: "github-token",
@@ -71,7 +71,7 @@ export const PATTERNS: SecretPattern[] = [
     prefixLen: 4,
     suffixLen: 4,
     entropyThreshold: 0,
-    configKey: "redakt.detectors.githubTokens",
+    configKey: "secretshields.detectors.githubTokens",
   },
   {
     id: "stripe-secret-key",
@@ -83,7 +83,7 @@ export const PATTERNS: SecretPattern[] = [
     prefixLen: 8,
     suffixLen: 4,
     entropyThreshold: 0,
-    configKey: "redakt.detectors.stripeKeys",
+    configKey: "secretshields.detectors.stripeKeys",
   },
   {
     id: "stripe-publishable-key",
@@ -95,7 +95,7 @@ export const PATTERNS: SecretPattern[] = [
     prefixLen: 8,
     suffixLen: 4,
     entropyThreshold: 0,
-    configKey: "redakt.detectors.stripeKeys",
+    configKey: "secretshields.detectors.stripeKeys",
   },
   {
     id: "openai-api-key",
@@ -107,7 +107,7 @@ export const PATTERNS: SecretPattern[] = [
     prefixLen: 3,
     suffixLen: 4,
     entropyThreshold: 0,
-    configKey: "redakt.detectors.openaiKeys",
+    configKey: "secretshields.detectors.openaiKeys",
   },
   {
     id: "openai-api-key-v2",
@@ -119,7 +119,7 @@ export const PATTERNS: SecretPattern[] = [
     prefixLen: 8,
     suffixLen: 4,
     entropyThreshold: 0,
-    configKey: "redakt.detectors.openaiKeys",
+    configKey: "secretshields.detectors.openaiKeys",
   },
   {
     id: "anthropic-api-key",
@@ -131,7 +131,7 @@ export const PATTERNS: SecretPattern[] = [
     prefixLen: 13,
     suffixLen: 4,
     entropyThreshold: 0,
-    configKey: "redakt.detectors.anthropicKeys",
+    configKey: "secretshields.detectors.anthropicKeys",
   },
   {
     id: "google-api-key",
@@ -143,7 +143,7 @@ export const PATTERNS: SecretPattern[] = [
     prefixLen: 4,
     suffixLen: 4,
     entropyThreshold: 0,
-    configKey: "redakt.detectors.googleApiKeys",
+    configKey: "secretshields.detectors.googleApiKeys",
   },
   {
     id: "database-url",
@@ -156,7 +156,7 @@ export const PATTERNS: SecretPattern[] = [
     prefixLen: 15,
     suffixLen: 0,
     entropyThreshold: 0,
-    configKey: "redakt.detectors.databaseUrls",
+    configKey: "secretshields.detectors.databaseUrls",
   },
   {
     id: "ssh-private-key",
@@ -168,7 +168,7 @@ export const PATTERNS: SecretPattern[] = [
     prefixLen: 0,
     suffixLen: 0,
     entropyThreshold: 0,
-    configKey: "redakt.detectors.sshPrivateKeys",
+    configKey: "secretshields.detectors.sshPrivateKeys",
   },
   {
     id: "jwt",
@@ -180,6 +180,6 @@ export const PATTERNS: SecretPattern[] = [
     prefixLen: 10,
     suffixLen: 4,
     entropyThreshold: 3.0,
-    configKey: "redakt.detectors.jwts",
+    configKey: "secretshields.detectors.jwts",
   },
 ];

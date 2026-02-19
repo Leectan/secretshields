@@ -10,8 +10,8 @@
  *
  * Test plan:
  * 1. Extension activates without errors
- * 2. "Redakt: Mask Clipboard Now" command is registered
- * 3. "Redakt: Restore Last Secret" command is registered
+ * 2. "SecretShields: Mask Clipboard Now" command is registered
+ * 3. "SecretShields: Restore Last Secret" command is registered
  * 4. Status bar item appears
  * 5. Exposure Log tree view is registered
  * 6. Copying a test secret masks the clipboard (manual)

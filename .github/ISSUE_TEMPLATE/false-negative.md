@@ -1,6 +1,6 @@
 ---
 name: False Negative
-about: Report a secret that Redakt failed to detect
+about: Report a secret that SecretShields failed to detect
 title: "[FN] "
 labels: false-negative, detection
 ---
@@ -11,12 +11,12 @@ labels: false-negative, detection
 
 ## Expected detection
 
-<!-- What should Redakt have done? e.g., "Should have masked the entire token" -->
+<!-- What should SecretShields have done? e.g., "Should have masked the entire token" -->
 
 ## Where did it leak?
 
 - [ ] Clipboard (was not auto-masked on copy)
-- [ ] Editor paste widget (no "Paste with Redakt masking" option offered)
+- [ ] Editor paste widget (no "Paste with SecretShields masking" option offered)
 
 ## Synthetic example
 
@@ -34,11 +34,11 @@ FAKE_EXAMPLE: [SYNTHETIC_TOKEN_DO_NOT_USE_REAL_CREDS]
 
 - **OS**: <!-- e.g., macOS 14.2, Windows 11, Ubuntu 22.04 -->
 - **IDE**: <!-- e.g., VS Code 1.92, Cursor 0.40 -->
-- **Redakt version**: <!-- e.g., 0.1.1 -->
+- **SecretShields version**: <!-- e.g., 0.2.0 -->
 
 ## Relevant settings
 
-<!-- List any non-default Redakt settings. Were any detectors disabled? -->
+<!-- List any non-default SecretShields settings. Were any detectors disabled? -->
 
 ```json
 {

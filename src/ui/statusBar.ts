@@ -11,17 +11,17 @@ export function createStatusBar(exposureStore: ExposureStore): StatusBarHandle {
     100
   );
 
-  item.command = "redakt.showExposureLog";
+  item.command = "secretshields.showExposureLog";
 
   function update(): void {
     const exposed = exposureStore.getExposed();
     if (exposed.length === 0) {
-      item.text = "$(shield) Redakt";
-      item.tooltip = "Redakt: Clipboard protection active. No exposed secrets.";
+      item.text = "$(shield) SecretShields";
+      item.tooltip = "SecretShields: Clipboard protection active. No exposed secrets.";
       item.backgroundColor = undefined;
     } else {
-      item.text = `$(shield) Redakt: ${exposed.length} exposed`;
-      item.tooltip = `Redakt: ${exposed.length} secret(s) exposed — click to view.`;
+      item.text = `$(shield) SecretShields: ${exposed.length} exposed`;
+      item.tooltip = `SecretShields: ${exposed.length} secret(s) exposed — click to view.`;
       item.backgroundColor = new vscode.ThemeColor(
         "statusBarItem.warningBackground"
       );

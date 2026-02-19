@@ -46,7 +46,7 @@ export class ClipboardMonitor {
     if (!this.running) {
       return;
     }
-    const config = vscode.workspace.getConfiguration("redakt");
+    const config = vscode.workspace.getConfiguration("secretshields");
     const interval = config.get<number>("pollIntervalMs", 1000);
     this.timer = setTimeout(async () => {
       await this.poll();
@@ -74,7 +74,7 @@ export class ClipboardMonitor {
     this.isMasking = false;
 
     vscode.window.showInformationMessage(
-      `Redakt: Masked ${detections.length} secret(s) in clipboard.`
+      `SecretShields: Masked ${detections.length} secret(s) in clipboard.`
     );
   }
 
@@ -99,7 +99,7 @@ export class ClipboardMonitor {
     this.isMasking = false;
 
     // Create exposure events for each detected secret
-    const config = vscode.workspace.getConfiguration("redakt");
+    const config = vscode.workspace.getConfiguration("secretshields");
     for (const d of this.cachedSecret.detections) {
       const countdownMinutes = config.get<number>(
         `countdownMinutes.${d.severity}`,
@@ -127,7 +127,7 @@ export class ClipboardMonitor {
     this.cachedSecret = undefined;
 
     vscode.window.showWarningMessage(
-      `Redakt: Secret restored to clipboard. Rotation reminder started. ` +
+      `SecretShields: Secret restored to clipboard. Rotation reminder started. ` +
       `Re-copy something else or the secret will remain in clipboard.`
     );
   }
@@ -147,7 +147,7 @@ export class ClipboardMonitor {
 
       this.lastClipboard = text;
 
-      const config = vscode.workspace.getConfiguration("redakt");
+      const config = vscode.workspace.getConfiguration("secretshields");
       if (!config.get<boolean>("enabled", true)) {
         return;
       }
@@ -168,23 +168,23 @@ export class ClipboardMonitor {
 
         const ttl = config.get<number>("restoreTTLSeconds", 60);
         const choice = await vscode.window.showWarningMessage(
-          `Redakt: Masked ${detections.length} secret(s) in clipboard.`,
+          `SecretShields: Masked ${detections.length} secret(s) in clipboard.`,
           "Keep Masked (Safe)",
           `Restore for ${ttl}s (Exposes)`,
-          "Disable Redakt"
+          "Disable SecretShields"
         );
 
         if (choice === `Restore for ${ttl}s (Exposes)`) {
           await this.restoreLastSecret();
-        } else if (choice === "Disable Redakt") {
+        } else if (choice === "Disable SecretShields") {
           await config.update("enabled", false, vscode.ConfigurationTarget.Global);
           this.stop();
-          vscode.window.showInformationMessage("Redakt disabled. Re-enable in settings.");
+          vscode.window.showInformationMessage("SecretShields disabled. Re-enable in settings.");
         }
       } else {
         // Non-auto mode: just warn
         const choice = await vscode.window.showWarningMessage(
-          `Redakt: Detected ${detections.length} secret(s) in clipboard.`,
+          `SecretShields: Detected ${detections.length} secret(s) in clipboard.`,
           "Mask Clipboard",
           "Ignore"
         );
@@ -199,7 +199,7 @@ export class ClipboardMonitor {
   }
 
   private cacheOriginal(original: string, detections: DetectionResult[]): void {
-    const config = vscode.workspace.getConfiguration("redakt");
+    const config = vscode.workspace.getConfiguration("secretshields");
     const ttlSeconds = config.get<number>("restoreTTLSeconds", 60);
     this.cachedSecret = {
       original,
@@ -216,23 +216,23 @@ export class ClipboardMonitor {
   }
 
   private getEnabledPatterns(): Set<string> | undefined {
-    const config = vscode.workspace.getConfiguration("redakt");
+    const config = vscode.workspace.getConfiguration("secretshields");
     const keys = [
-      "redakt.detectors.awsKeys",
-      "redakt.detectors.githubTokens",
-      "redakt.detectors.stripeKeys",
-      "redakt.detectors.openaiKeys",
-      "redakt.detectors.anthropicKeys",
-      "redakt.detectors.googleApiKeys",
-      "redakt.detectors.databaseUrls",
-      "redakt.detectors.sshPrivateKeys",
-      "redakt.detectors.jwts",
+      "secretshields.detectors.awsKeys",
+      "secretshields.detectors.githubTokens",
+      "secretshields.detectors.stripeKeys",
+      "secretshields.detectors.openaiKeys",
+      "secretshields.detectors.anthropicKeys",
+      "secretshields.detectors.googleApiKeys",
+      "secretshields.detectors.databaseUrls",
+      "secretshields.detectors.sshPrivateKeys",
+      "secretshields.detectors.jwts",
     ];
 
     const enabled = new Set<string>();
     let allEnabled = true;
     for (const key of keys) {
-      const shortKey = key.replace("redakt.", "");
+      const shortKey = key.replace("secretshields.", "");
       if (config.get<boolean>(shortKey, true)) {
         enabled.add(key);
       } else {

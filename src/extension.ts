@@ -17,7 +17,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
   clipboardMonitor = new ClipboardMonitor(exposureStore, countdownManager);
 
-  const tree = vscode.window.createTreeView("redakt.exposureLog", {
+  const tree = vscode.window.createTreeView("secretshields.exposureLog", {
     treeDataProvider: treeProvider,
   });
 
@@ -26,19 +26,19 @@ export function activate(context: vscode.ExtensionContext): void {
     statusBar,
     countdownManager,
 
-    vscode.commands.registerCommand("redakt.maskClipboard", () => {
+    vscode.commands.registerCommand("secretshields.maskClipboard", () => {
       clipboardMonitor?.maskClipboardNow();
     }),
 
-    vscode.commands.registerCommand("redakt.restoreLastSecret", () => {
+    vscode.commands.registerCommand("secretshields.restoreLastSecret", () => {
       clipboardMonitor?.restoreLastSecret();
     }),
 
-    vscode.commands.registerCommand("redakt.showExposureLog", () => {
-      vscode.commands.executeCommand("redakt.exposureLog.focus");
+    vscode.commands.registerCommand("secretshields.showExposureLog", () => {
+      vscode.commands.executeCommand("secretshields.exposureLog.focus");
     }),
 
-    vscode.commands.registerCommand("redakt.clearExposureLog", async () => {
+    vscode.commands.registerCommand("secretshields.clearExposureLog", async () => {
       const confirm = await vscode.window.showWarningMessage(
         "Clear all exposure history?",
         { modal: true },
@@ -51,7 +51,7 @@ export function activate(context: vscode.ExtensionContext): void {
       }
     }),
 
-    vscode.commands.registerCommand("redakt.markRotated", async () => {
+    vscode.commands.registerCommand("secretshields.markRotated", async () => {
       const events = exposureStore
         .getAll()
         .filter((e) => e.status === "exposed");
@@ -79,7 +79,7 @@ export function activate(context: vscode.ExtensionContext): void {
   );
 
   // Start clipboard monitoring if enabled
-  const config = vscode.workspace.getConfiguration("redakt");
+  const config = vscode.workspace.getConfiguration("secretshields");
   if (config.get<boolean>("enabled", true)) {
     clipboardMonitor.start();
   }
@@ -94,9 +94,9 @@ export function activate(context: vscode.ExtensionContext): void {
   // Listen for config changes
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration("redakt.enabled")) {
+      if (e.affectsConfiguration("secretshields.enabled")) {
         const enabled = vscode.workspace
-          .getConfiguration("redakt")
+          .getConfiguration("secretshields")
           .get<boolean>("enabled", true);
         if (enabled) {
           clipboardMonitor?.start();
@@ -105,9 +105,9 @@ export function activate(context: vscode.ExtensionContext): void {
         }
       }
 
-      if (e.affectsConfiguration("redakt.editorPasteMasking.mode")) {
+      if (e.affectsConfiguration("secretshields.editorPasteMasking.mode")) {
         const mode = vscode.workspace
-          .getConfiguration("redakt")
+          .getConfiguration("secretshields")
           .get<string>("editorPasteMasking.mode", "offer");
 
         // Dispose existing provider

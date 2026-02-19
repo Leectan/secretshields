@@ -7,7 +7,7 @@ labels: ux, feedback
 
 ## What workflow got disrupted?
 
-<!-- Describe what you were doing and how Redakt interfered. e.g., "I was copying a code snippet and it got masked even though it wasn't a secret" -->
+<!-- Describe what you were doing and how SecretShields interfered. e.g., "I was copying a code snippet and it got masked even though it wasn't a secret" -->
 
 ## Expected behavior
 
@@ -27,4 +27,4 @@ labels: ux, feedback
 
 - **OS**: <!-- e.g., macOS 14.2, Windows 11, Ubuntu 22.04 -->
 - **IDE**: <!-- e.g., VS Code 1.92, Cursor 0.40 -->
-- **Redakt version**: <!-- e.g., 0.1.1 -->
+- **SecretShields version**: <!-- e.g., 0.2.0 -->

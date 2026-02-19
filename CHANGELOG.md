@@ -1,9 +1,21 @@
 # Changelog
 
+## [0.2.0] - 2026-02-18
+
+### Changed
+- **Rebranded from Redakt to SecretShields**: All user-facing names, command IDs, configuration keys, and view IDs updated from `redakt.*` to `secretshields.*`.
+- GitHub repository renamed from `Leectan/redakt` to `Leectan/secretshields`.
+- GitHub Pages homepage updated to `https://leectan.github.io/secretshields/`.
+- Existing exposure log data is automatically migrated from the old storage key.
+
+### Breaking
+- All settings keys changed from `redakt.*` to `secretshields.*` (e.g., `redakt.enabled` → `secretshields.enabled`). Users with customized settings will need to update their keys.
+- All command IDs changed (e.g., `redakt.maskClipboard` → `secretshields.maskClipboard`). Users with custom keybindings will need to update.
+
 ## [0.1.1] - 2026-02-17
 
 ### Added
-- **Editor paste masking**: When pasting into code editors, a "Paste with Redakt masking" option appears in the paste widget. Configurable via `redakt.editorPasteMasking.mode` (`offer`, `auto`, `off`).
+- **Editor paste masking**: When pasting into code editors, a "Paste with SecretShields masking" option appears in the paste widget. Configurable via `secretshields.editorPasteMasking.mode` (`offer`, `auto`, `off`).
 - Beta notes section in README with guidance on reporting false positives.
 - SECURITY.md documenting the security model.
 - CHANGELOG.md, LICENSE, .gitignore.
@@ -12,7 +24,7 @@
 ### Fixed
 - Clipboard polling race condition: replaced `setInterval` with self-scheduling `setTimeout` that awaits completion.
 - SSH private key masking now uses total masking (prefixLen: 0, suffixLen: 0) — no key material is ever revealed.
-- Countdown timer settings (`redakt.countdownMinutes.*`) are now actually read from configuration instead of being hardcoded.
+- Countdown timer settings (`secretshields.countdownMinutes.*`) are now actually read from configuration instead of being hardcoded.
 - Activity Bar icon now uses a proper SVG file instead of an invalid codicon string.
 - Broken `test:integration` script no longer points to a non-existent file.
 - ESLint configuration added; `npm run lint` now works and is included in CI.

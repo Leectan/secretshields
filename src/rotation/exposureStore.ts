@@ -18,14 +18,25 @@ export interface ExposureEvent {
  * Persists exposure metadata (never raw secrets) in globalState.
  */
 export class ExposureStore {
-  private static readonly STORAGE_KEY = "redakt.exposureLog";
+  private static readonly STORAGE_KEY = "secretshields.exposureLog";
+  private static readonly LEGACY_STORAGE_KEY = "redakt.exposureLog";
   private events: ExposureEvent[] = [];
   private readonly _onDidChange = new vscode.EventEmitter<void>();
   readonly onDidChange = this._onDidChange.event;
 
   constructor(private readonly context: vscode.ExtensionContext) {
-    this.events =
-      context.globalState.get<ExposureEvent[]>(ExposureStore.STORAGE_KEY) ?? [];
+    // Migrate from old key if new key has no data
+    const newData = context.globalState.get<ExposureEvent[]>(ExposureStore.STORAGE_KEY);
+    const legacyData = context.globalState.get<ExposureEvent[]>(ExposureStore.LEGACY_STORAGE_KEY);
+    if (newData) {
+      this.events = newData;
+    } else if (legacyData) {
+      this.events = legacyData;
+      this.persist();
+      context.globalState.update(ExposureStore.LEGACY_STORAGE_KEY, undefined);
+    } else {
+      this.events = [];
+    }
   }
 
   addExposure(params: {

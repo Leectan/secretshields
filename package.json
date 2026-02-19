@@ -1,18 +1,18 @@
 {
-  "name": "redakt",
-  "displayName": "Redakt — Secret Shield for AI Chat",
+  "name": "secretshields",
+  "displayName": "SecretShields — Secret Shield for AI Chat",
   "description": "Local-first clipboard secret masking. Prevents accidental secret leakage into AI chats, terminals, and pastebins.",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "publisher": "secretshields",
   "license": "MIT",
   "icon": "media/shield.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Leectan/redakt"
+    "url": "https://github.com/Leectan/secretshields"
   },
-  "homepage": "https://leectan.github.io/redakt/",
+  "homepage": "https://leectan.github.io/secretshields/",
   "bugs": {
-    "url": "https://github.com/Leectan/redakt/issues"
+    "url": "https://github.com/Leectan/secretshields/issues"
   },
   "engines": {
     "vscode": "^1.85.0"
@@ -35,120 +35,120 @@
   "contributes": {
     "commands": [
       {
-        "command": "redakt.maskClipboard",
-        "title": "Redakt: Mask Clipboard Now"
+        "command": "secretshields.maskClipboard",
+        "title": "SecretShields: Mask Clipboard Now"
       },
       {
-        "command": "redakt.restoreLastSecret",
-        "title": "Redakt: Restore Last Secret (Time-Limited)"
+        "command": "secretshields.restoreLastSecret",
+        "title": "SecretShields: Restore Last Secret (Time-Limited)"
       },
       {
-        "command": "redakt.showExposureLog",
-        "title": "Redakt: Show Exposure Log"
+        "command": "secretshields.showExposureLog",
+        "title": "SecretShields: Show Exposure Log"
       },
       {
-        "command": "redakt.clearExposureLog",
-        "title": "Redakt: Clear Exposure Log"
+        "command": "secretshields.clearExposureLog",
+        "title": "SecretShields: Clear Exposure Log"
       },
       {
-        "command": "redakt.markRotated",
-        "title": "Redakt: Mark Secret as Rotated"
+        "command": "secretshields.markRotated",
+        "title": "SecretShields: Mark Secret as Rotated"
       }
     ],
     "configuration": {
-      "title": "Redakt",
+      "title": "SecretShields",
       "properties": {
-        "redakt.enabled": {
+        "secretshields.enabled": {
           "type": "boolean",
           "default": true,
-          "description": "Enable or disable Redakt clipboard monitoring."
+          "description": "Enable or disable SecretShields clipboard monitoring."
         },
-        "redakt.autoMask": {
+        "secretshields.autoMask": {
           "type": "boolean",
           "default": true,
           "description": "Automatically mask secrets in clipboard when detected."
         },
-        "redakt.restoreTTLSeconds": {
+        "secretshields.restoreTTLSeconds": {
           "type": "number",
           "default": 60,
           "minimum": 10,
           "maximum": 300,
           "description": "Seconds to allow restoring the original secret after masking."
         },
-        "redakt.pollIntervalMs": {
+        "secretshields.pollIntervalMs": {
           "type": "number",
           "default": 1000,
           "minimum": 500,
           "maximum": 5000,
           "description": "Clipboard polling interval in milliseconds."
         },
-        "redakt.detectors.awsKeys": {
+        "secretshields.detectors.awsKeys": {
           "type": "boolean",
           "default": true,
           "description": "Detect AWS access keys and secret keys."
         },
-        "redakt.detectors.githubTokens": {
+        "secretshields.detectors.githubTokens": {
           "type": "boolean",
           "default": true,
           "description": "Detect GitHub personal access tokens."
         },
-        "redakt.detectors.stripeKeys": {
+        "secretshields.detectors.stripeKeys": {
           "type": "boolean",
           "default": true,
           "description": "Detect Stripe API keys."
         },
-        "redakt.detectors.openaiKeys": {
+        "secretshields.detectors.openaiKeys": {
           "type": "boolean",
           "default": true,
           "description": "Detect OpenAI API keys."
         },
-        "redakt.detectors.anthropicKeys": {
+        "secretshields.detectors.anthropicKeys": {
           "type": "boolean",
           "default": true,
           "description": "Detect Anthropic API keys."
         },
-        "redakt.detectors.googleApiKeys": {
+        "secretshields.detectors.googleApiKeys": {
           "type": "boolean",
           "default": true,
           "description": "Detect Google API keys."
         },
-        "redakt.detectors.databaseUrls": {
+        "secretshields.detectors.databaseUrls": {
           "type": "boolean",
           "default": true,
           "description": "Detect database connection URLs with passwords."
         },
-        "redakt.detectors.sshPrivateKeys": {
+        "secretshields.detectors.sshPrivateKeys": {
           "type": "boolean",
           "default": true,
           "description": "Detect SSH private key headers."
         },
-        "redakt.detectors.jwts": {
+        "secretshields.detectors.jwts": {
           "type": "boolean",
           "default": true,
           "description": "Detect JSON Web Tokens."
         },
-        "redakt.countdownMinutes.critical": {
+        "secretshields.countdownMinutes.critical": {
           "type": "number",
           "default": 15,
           "description": "Rotation reminder countdown (minutes) for critical severity secrets."
         },
-        "redakt.countdownMinutes.high": {
+        "secretshields.countdownMinutes.high": {
           "type": "number",
           "default": 60,
           "description": "Rotation reminder countdown (minutes) for high severity secrets."
         },
-        "redakt.countdownMinutes.medium": {
+        "secretshields.countdownMinutes.medium": {
           "type": "number",
           "default": 240,
           "description": "Rotation reminder countdown (minutes) for medium severity secrets."
         },
-        "redakt.editorPasteMasking.mode": {
+        "secretshields.editorPasteMasking.mode": {
           "type": "string",
           "default": "offer",
           "enum": ["off", "offer", "auto"],
           "enumDescriptions": [
-            "Redakt does not participate in editor paste at all.",
-            "Show 'Paste with Redakt masking' as an alternative in the paste widget. Normal paste remains default.",
+            "SecretShields does not participate in editor paste at all.",
+            "Show 'Paste with SecretShields masking' as an alternative in the paste widget. Normal paste remains default.",
             "Attempt to make masked paste the default option. Ordering is best-effort and depends on other providers."
           ],
           "description": "Controls editor paste masking behavior. 'offer' shows a masked paste option in the paste widget; 'auto' tries to make it default; 'off' disables it."
@@ -158,16 +158,16 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "redakt",
-          "title": "Redakt",
+          "id": "secretshields",
+          "title": "SecretShields",
           "icon": "media/shield.svg"
         }
       ]
     },
     "views": {
-      "redakt": [
+      "secretshields": [
         {
-          "id": "redakt.exposureLog",
+          "id": "secretshields.exposureLog",
           "name": "Exposure Log"
         }
       ]
