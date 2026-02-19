@@ -2,16 +2,16 @@
 
 ## Security Model
 
-Redakt is designed with a strict local-first security model:
+SecretShields is designed with a strict local-first security model:
 
-- **No network calls**: All detection, masking, and alerting happens entirely on your machine. Redakt never connects to any server.
+- **No network calls**: All detection, masking, and alerting happens entirely on your machine. SecretShields never connects to any server.
 - **No telemetry**: Nothing is collected or transmitted.
 - **No raw secret persistence**: Raw secrets exist briefly in-memory only (for the restore TTL window, default 60 seconds). After TTL expiry, the in-memory copy is discarded and cannot be recovered.
 - **Persistent storage**: Only masked previews and non-sensitive metadata (provider name, severity, timestamp, rotation URL, status) are stored in VS Code's `globalState`. No raw secret material is ever written to disk.
 
 ## Clipboard Rewriting Behavior
 
-Redakt modifies your system clipboard when it detects secrets:
+SecretShields modifies your system clipboard when it detects secrets:
 
 - **Auto-mask mode** (default): Detected secrets are replaced with masked versions in-place on the clipboard.
 - **Restore**: If you choose to restore a secret, the original is written back to the clipboard temporarily. This triggers a rotation reminder.
@@ -36,7 +36,7 @@ For non-security bugs (false positives, UI issues, etc.), open a regular GitHub 
 
 ## Scope
 
-This policy covers the Redakt extension code. It does not cover:
+This policy covers the SecretShields extension code. It does not cover:
 
 - VS Code's own clipboard handling or security model
 - Third-party extensions that may read the clipboard

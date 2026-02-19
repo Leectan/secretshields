@@ -1,6 +1,6 @@
 # Publishing Runbook
 
-Step-by-step guide for publishing Redakt to VS Code Marketplace and OpenVSX. A new maintainer should be able to ship a release by following this doc.
+Step-by-step guide for publishing SecretShields to VS Code Marketplace and OpenVSX. A new maintainer should be able to ship a release by following this doc.
 
 ## Prerequisites
 
@@ -68,9 +68,9 @@ Before tagging, manually run through the beta checklist in both VS Code and Curs
 # Ensure you're on the correct branch with all changes committed
 git status
 
-# Tag the release (triggers publish workflow)
-git tag v0.1.1
-git push origin v0.1.1
+# Tag the release — version must match package.json (triggers publish workflow)
+git tag vX.Y.Z
+git push origin vX.Y.Z
 ```
 
 The `publish.yml` workflow will automatically:
@@ -82,12 +82,12 @@ The `publish.yml` workflow will automatically:
 
 ## 7. Post-publish Validation
 
-1. **VS Code Marketplace**: Search "Redakt" at [marketplace.visualstudio.com](https://marketplace.visualstudio.com/) — verify listing, icon, README render correctly
-2. **OpenVSX**: Search "Redakt" at [open-vsx.org](https://open-vsx.org/) — verify listing appears
+1. **VS Code Marketplace**: Search "SecretShields" at [marketplace.visualstudio.com](https://marketplace.visualstudio.com/) — verify listing, icon, README render correctly
+2. **OpenVSX**: Search "SecretShields" at [open-vsx.org](https://open-vsx.org/) — verify listing appears
 3. **Install test (VS Code)**: Install from Marketplace, activate, copy a synthetic secret, verify masking works
 4. **Install test (Cursor)**: Install from OpenVSX or VSIX, activate, verify same behavior
 
-## 8. Publishing a Patch (v0.1.2+)
+## 8. Publishing a Patch
 
 ```bash
 # 1. Make your code changes
@@ -109,11 +109,11 @@ git push origin main --tags
 ### VS Code Marketplace
 
 ```bash
-# Unpublish a specific version
-npx vsce unpublish secretshields.redakt@0.1.1
+# Unpublish a specific version (replace X.Y.Z with actual version)
+npx vsce unpublish secretshields.secretshields@X.Y.Z
 
 # Or unpublish entirely (removes listing)
-npx vsce unpublish secretshields.redakt
+npx vsce unpublish secretshields.secretshields
 ```
 
 Alternatively, use the [Marketplace Management Portal](https://marketplace.visualstudio.com/manage) to unpublish or deprecate versions through the UI.

@@ -1,6 +1,6 @@
 # Public Beta Rollout Plan
 
-Operational checklist for launching Redakt v0.1.1 as a public beta.
+Operational checklist for launching SecretShields as a public beta. Version must match `package.json`.
 
 ## Distribution Channels
 
@@ -11,25 +11,25 @@ Operational checklist for launching Redakt v0.1.1 as a public beta.
 ### Discovery
 - [ ] **GitHub README badge**: Add install/version badges to README.md
   ```markdown
-  [![VS Code Marketplace](https://img.shields.io/visual-studio-marketplace/v/secretshields.redakt)](https://marketplace.visualstudio.com/items?itemName=secretshields.redakt)
-  [![OpenVSX](https://img.shields.io/open-vsx/v/secretshields/redakt)](https://open-vsx.org/extension/secretshields/redakt)
+  [![VS Code Marketplace](https://img.shields.io/visual-studio-marketplace/v/secretshields.secretshields)](https://marketplace.visualstudio.com/items?itemName=secretshields.secretshields)
+  [![OpenVSX](https://img.shields.io/open-vsx/v/secretshields/secretshields)](https://open-vsx.org/extension/secretshields/secretshields)
   ```
 - [ ] **GitHub repo description**: Set to "Local-first clipboard secret masking for VS Code and Cursor. Prevents accidental secret leakage into AI chats."
 - [ ] **GitHub topics**: `vscode-extension`, `security`, `clipboard`, `secret-detection`, `ai-safety`
 
 ### Announcement Blurb
 
-> **Redakt** is now in public beta. It's a local-first VS Code/Cursor extension that automatically masks secrets when you copy them, so you never accidentally paste API keys or tokens into AI chats, terminals, or pastebins.
+> **SecretShields** is now in public beta. It's a local-first VS Code/Cursor extension that automatically masks secrets when you copy them, so you never accidentally paste API keys or tokens into AI chats, terminals, or pastebins.
 >
 > No network calls. No telemetry. Everything runs locally.
 >
-> Try it: Install "Redakt" from the VS Code Marketplace or OpenVSX.
+> Try it: Install "SecretShields" from the VS Code Marketplace or OpenVSX.
 >
-> We need your feedback: false positives, missed secrets, and UX friction. File an issue at [github.com/secretshields/redakt/issues](https://github.com/secretshields/redakt/issues).
+> We need your feedback: false positives, missed secrets, and UX friction. File an issue at [github.com/Leectan/secretshields/issues](https://github.com/Leectan/secretshields/issues).
 
 ## Metrics to Track (Manual — Local-First)
 
-Since Redakt makes zero network calls, metrics are gathered manually from public sources:
+Since SecretShields makes zero network calls, metrics are gathered manually from public sources:
 
 | Metric | Source | Frequency |
 |--------|--------|-----------|
@@ -47,7 +47,7 @@ Since Redakt makes zero network calls, metrics are gathered manually from public
 1. **Security issues**: Fix immediately, patch release same day if possible
 2. **False negatives** (missed secrets): High priority — secrets leaking defeats the product
 3. **False positives** (over-masking): Medium priority — annoying but safe; fix via pattern tuning or allowlist additions
-4. **UX friction**: Lower priority unless it causes users to disable Redakt entirely
+4. **UX friction**: Lower priority unless it causes users to disable SecretShields entirely
 
 ### Response Targets
 - Security: Acknowledge within 24 hours, patch within 72 hours
@@ -66,7 +66,7 @@ Pause beta distribution and investigate if any of these occur:
 
 | Condition | Action |
 |-----------|--------|
-| Security vulnerability reported in Redakt itself | Unpublish immediately, fix, re-validate, re-publish |
+| Security vulnerability reported in SecretShields itself | Unpublish immediately, fix, re-validate, re-publish |
 | >30% of issues are the same false positive | Hotfix the pattern, patch release |
 | Star rating drops below 2.5 (with >10 ratings) | Investigate top complaints, consider pulling listing |
 | Extension causes VS Code/Cursor crash or hang | Unpublish, debug, re-publish |

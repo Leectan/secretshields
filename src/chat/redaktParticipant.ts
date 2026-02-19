@@ -1,13 +1,13 @@
 /**
- * @redakt Chat Participant — POST-MVP
+ * @secretshields Chat Participant — POST-MVP
  *
- * This file is a placeholder for the @redakt chat participant feature.
+ * This file is a placeholder for the @secretshields chat participant feature.
  * It will only be implemented after MVP ships and after intentionally
  * bumping `engines.vscode` to the minimum version that supports
  * Chat Participants across target IDEs (VS Code + Cursor).
  *
  * Planned behavior:
- * - User pastes text to @redakt in the chat panel
+ * - User pastes text to @secretshields in the chat panel
  * - Extension replies with a masked version
  * - Clear "copy this into your AI chat" instructions
  *
@@ -22,6 +22,6 @@
  * 4. Test in both VS Code and Cursor
  */
 
-// export function registerRedaktParticipant(context: vscode.ExtensionContext): void {
+// export function registerSecretShieldsParticipant(context: vscode.ExtensionContext): void {
 //   // TODO: Post-MVP implementation
 // }

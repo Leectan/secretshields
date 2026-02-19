@@ -1,4 +1,4 @@
-# Redakt
+# SecretShields
 
 Local-first clipboard secret masking for VS Code / Cursor.
 
@@ -10,8 +10,8 @@ Local-first clipboard secret masking for VS Code / Cursor.
 
 ## Install
 
-- VS Code Marketplace: see the extension listing for `Redakt`
-- OpenVSX (Cursor): see the OpenVSX listing for `Redakt`
+- VS Code Marketplace: see the extension listing for `SecretShields`
+- OpenVSX (Cursor): see the OpenVSX listing for `SecretShields`
 
 ## Docs
 

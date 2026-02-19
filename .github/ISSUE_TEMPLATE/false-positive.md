@@ -7,7 +7,7 @@ labels: false-positive, detection
 
 ## What got masked?
 
-<!-- Describe what Redakt treated as a secret (e.g., "a Base64 config string", "a test API key from docs") -->
+<!-- Describe what SecretShields treated as a secret (e.g., "a Base64 config string", "a test API key from docs") -->
 
 ## Why is it not a secret?
 
@@ -16,11 +16,11 @@ labels: false-positive, detection
 ## Where did masking occur?
 
 - [ ] Clipboard (auto-mask on copy)
-- [ ] Editor paste widget ("Paste with Redakt masking")
+- [ ] Editor paste widget ("Paste with SecretShields masking")
 
 ## Redacted sample
 
-<!-- Paste the MASKED version Redakt produced (never paste real secrets). Example: AKIA████████████████ -->
+<!-- Paste the MASKED version SecretShields produced (never paste real secrets). Example: AKIA████████████████ -->
 
 ```
 <paste masked output here>
@@ -38,11 +38,11 @@ labels: false-positive, detection
 
 - **OS**: <!-- e.g., macOS 14.2, Windows 11, Ubuntu 22.04 -->
 - **IDE**: <!-- e.g., VS Code 1.92, Cursor 0.40 -->
-- **Redakt version**: <!-- e.g., 0.1.1 -->
+- **SecretShields version**: <!-- e.g., 0.2.0 -->
 
 ## Relevant settings
 
-<!-- List any non-default Redakt settings (e.g., disabled detectors, custom poll interval) -->
+<!-- List any non-default SecretShields settings (e.g., disabled detectors, custom poll interval) -->
 
 ```json
 {

@@ -1,11 +1,11 @@
-# Redakt — Secret Shield for AI Chat
+# SecretShields — Secret Shield for AI Chat
 
-Redakt is a local-first VS Code / Cursor extension that automatically masks secrets in your clipboard before you paste them anywhere — including AI chat windows, terminals, and pastebins.
+SecretShields is a local-first VS Code / Cursor extension that automatically masks secrets in your clipboard before you paste them anywhere — including AI chat windows, terminals, and pastebins.
 
 ## How It Works
 
 1. **Copy** text containing a secret (API key, token, DB URL, etc.)
-2. **Redakt detects** the secret within ~1 second (configurable via `pollIntervalMs`) and replaces your clipboard with a masked version
+2. **SecretShields detects** the secret within ~1 second (configurable via `pollIntervalMs`) and replaces your clipboard with a masked version
 3. **Paste** anywhere safely — the secret is already masked
 4. **Restore** (optional) — if you intentionally need the secret, restore it within a short time window. This triggers a rotation reminder.
 
@@ -20,7 +20,7 @@ Redakt is a local-first VS Code / Cursor extension that automatically masks secr
 
 ## Privacy Model
 
-Redakt is designed with privacy as a core feature:
+SecretShields is designed with privacy as a core feature:
 
 - **No network calls** — detection, masking, and alerts are entirely local
 - **No raw secret persistence** — raw secrets exist briefly in-memory only (for the restore TTL window); persistent storage holds only masked previews and metadata
@@ -30,52 +30,52 @@ Redakt is designed with privacy as a core feature:
 
 | Command | Description |
 |---------|-------------|
-| `Redakt: Mask Clipboard Now` | Manually mask the current clipboard contents |
-| `Redakt: Restore Last Secret (Time-Limited)` | Restore the original secret (only within TTL window) |
-| `Redakt: Show Exposure Log` | Open the exposure log panel |
-| `Redakt: Clear Exposure Log` | Clear all exposure history |
-| `Redakt: Mark Secret as Rotated` | Mark an exposed secret as rotated |
+| `SecretShields: Mask Clipboard Now` | Manually mask the current clipboard contents |
+| `SecretShields: Restore Last Secret (Time-Limited)` | Restore the original secret (only within TTL window) |
+| `SecretShields: Show Exposure Log` | Open the exposure log panel |
+| `SecretShields: Clear Exposure Log` | Clear all exposure history |
+| `SecretShields: Mark Secret as Rotated` | Mark an exposed secret as rotated |
 
 ## Settings
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| `redakt.enabled` | `true` | Enable/disable clipboard monitoring |
-| `redakt.autoMask` | `true` | Automatically mask detected secrets |
-| `redakt.restoreTTLSeconds` | `60` | Seconds to allow restoring original secret |
-| `redakt.pollIntervalMs` | `1000` | Clipboard polling interval (ms) |
-| `redakt.countdownMinutes.critical` | `15` | Rotation reminder for critical secrets (min) |
-| `redakt.countdownMinutes.high` | `60` | Rotation reminder for high secrets (min) |
-| `redakt.countdownMinutes.medium` | `240` | Rotation reminder for medium secrets (min) |
-| `redakt.editorPasteMasking.mode` | `"offer"` | Editor paste masking: `off`, `offer`, or `auto` |
+| `secretshields.enabled` | `true` | Enable/disable clipboard monitoring |
+| `secretshields.autoMask` | `true` | Automatically mask detected secrets |
+| `secretshields.restoreTTLSeconds` | `60` | Seconds to allow restoring original secret |
+| `secretshields.pollIntervalMs` | `1000` | Clipboard polling interval (ms) |
+| `secretshields.countdownMinutes.critical` | `15` | Rotation reminder for critical secrets (min) |
+| `secretshields.countdownMinutes.high` | `60` | Rotation reminder for high secrets (min) |
+| `secretshields.countdownMinutes.medium` | `240` | Rotation reminder for medium secrets (min) |
+| `secretshields.editorPasteMasking.mode` | `"offer"` | Editor paste masking: `off`, `offer`, or `auto` |
 
 ## Editor Paste Masking
 
-In addition to clipboard masking, Redakt can intercept paste operations in code editors:
+In addition to clipboard masking, SecretShields can intercept paste operations in code editors:
 
-- When you paste text containing secrets into a code editor, the **paste widget** offers a "Paste with Redakt masking" option
+- When you paste text containing secrets into a code editor, the **paste widget** offers a "Paste with SecretShields masking" option
 - In `offer` mode (default): normal paste remains the default; masked paste is selectable from the paste widget
-- In `auto` mode: Redakt attempts to make masked paste the default (best-effort, depends on other paste providers)
-- In `off` mode: Redakt does not participate in editor paste at all
+- In `auto` mode: SecretShields attempts to make masked paste the default (best-effort, depends on other paste providers)
+- In `off` mode: SecretShields does not participate in editor paste at all
 
-Configure via `redakt.editorPasteMasking.mode` in settings.
+Configure via `secretshields.editorPasteMasking.mode` in settings.
 
 **Note**: Editor paste masking works in code editor panes only. It does not apply to terminal, chat panels, or webview-based inputs.
 
 ## Beta Notes
 
-This is a public beta. Please help improve Redakt:
+This is a public beta. Please help improve SecretShields:
 
 - **False positives** (non-secrets getting masked): Open an issue with the masked text pattern (never include real secrets). We'll add it to the allowlist.
 - **False negatives** (real secrets not detected): Open an issue describing the secret format (e.g., "Acme Corp API keys start with `acme_`"). We'll add a detection pattern.
-- **Temporarily disable**: Set `redakt.enabled` to `false` in VS Code settings, or click "Disable Redakt" in the masking notification.
+- **Temporarily disable**: Set `secretshields.enabled` to `false` in VS Code settings, or click "Disable SecretShields" in the masking notification.
 - Clipboard masking is **polling-based** — detection occurs within the configured `pollIntervalMs` (default 1000ms), not instantly on copy.
 
 ## Limitations (MVP)
 
-- Redakt masks your clipboard proactively. It **cannot** intercept paste events inside Cursor or Copilot chat input fields directly (VS Code extensions cannot inject into other extensions' webviews).
-- Document paste APIs are treated as optional/conditional until verified stable for the targeted engine; not used in this release.
-- Rotation is manual — Redakt opens the provider's rotation page but does not auto-rotate credentials.
+- SecretShields masks your clipboard proactively. It **cannot** intercept paste events inside Cursor or Copilot chat input fields directly (VS Code extensions cannot inject into other extensions' webviews).
+- Editor paste masking is available for code editor panes only (TextDocuments), configurable via `secretshields.editorPasteMasking.mode`. It is optional and **not relied on** for core AI chat protection — clipboard-first masking remains the primary defense.
+- Rotation is manual — SecretShields opens the provider's rotation page but does not auto-rotate credentials.
 
 ## Installation
 
