@@ -145,7 +145,11 @@
         "secretshields.editorPasteMasking.mode": {
           "type": "string",
           "default": "offer",
-          "enum": ["off", "offer", "auto"],
+          "enum": [
+            "off",
+            "offer",
+            "auto"
+          ],
           "enumDescriptions": [
             "SecretShields does not participate in editor paste at all.",
             "Show 'Paste with SecretShields masking' as an alternative in the paste widget. Normal paste remains default.",
@@ -178,8 +182,10 @@
     "watch": "node esbuild.config.mjs --watch",
     "lint": "eslint src --ext ts",
     "test": "vitest run",
+    "test:unit": "vitest run",
     "test:watch": "vitest",
-    "test:integration": "echo 'Integration tests require VS Code — run manually with @vscode/test-electron'",
+    "test:integration": "vscode-test --label integration",
+    "test:all": "npm run test:unit && npm run test:integration",
     "package": "npx vsce package",
     "vscode:prepublish": "npm run build"
   },
@@ -188,6 +194,7 @@
     "@types/vscode": "^1.85.0",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
+    "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^2.3.8",
     "@vscode/vsce": "^2.22.0",
     "esbuild": "^0.20.0",

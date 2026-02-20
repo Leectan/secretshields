@@ -23,8 +23,11 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Run tests
-        run: npm test
+      - name: Run unit tests
+        run: npm run test:unit
+
+      - name: Run integration tests
+        run: xvfb-run -a npm run test:integration
 
       - name: Package VSIX
         run: npx vsce package --no-dependencies

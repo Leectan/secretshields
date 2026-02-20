@@ -13,6 +13,7 @@ esbuild.config.mjs
 .eslintrc*
 .prettier*
 vitest.config.*
+.vscode-test.mjs
 workflow_state.md
 project_config.md
 CLAUDE.md

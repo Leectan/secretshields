@@ -43,7 +43,7 @@ rm -rf node_modules && npm ci
 
 # Full validation
 npm run lint
-npm test
+npm run test:all    # runs unit tests (vitest) + integration tests (VS Code host)
 npm run build
 npx vsce package --no-dependencies
 
@@ -52,15 +52,18 @@ npx vsce ls --no-dependencies
 ```
 
 Ensure:
-- All 61+ tests pass
+- All unit tests pass (62+)
+- Integration tests pass (activation + command registration; clipboard test may skip in headless environments)
 - Lint is clean
 - VSIX packages without errors
 - No placeholder URLs remain in `package.json`
 - Version in `package.json` matches intended release
 
+> **Note:** Integration tests reduce risk but do not fully validate clipboard notifications or the editor paste widget. Run `docs/public-beta-checklist.md` once before publishing.
+
 ## 5. Execute `docs/public-beta-checklist.md`
 
-Before tagging, manually run through the beta checklist in both VS Code and Cursor. Do not skip this.
+Before tagging, manually run through the beta checklist in both VS Code and Cursor. Do not skip this — automated tests cannot cover clipboard rewriting UX or paste widget behavior.
 
 ## 6. Tag and Release
 

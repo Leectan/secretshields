@@ -3,12 +3,164 @@
 ## State
 - Phase: READY_FOR_IMPLEMENTATION
 - Status: PLAN_READY
-- CurrentTask: SecretShields Cycle 7 — Commit + push + release readiness
-- CycleCount: 7
-- LastUpdated: 2026-02-19T00:00
+- CurrentTask: SecretShields Cycle 9 — Land Cycle 8 + verify CI gate
+- CycleCount: 9
+- LastUpdated: 2026-02-19T00:20
 
 ## Plan
 <!-- GPT 5.2 writes numbered implementation tasks here -->
+### Implementation Plan: SecretShields Cycle 9 (Land Cycle 8 + Verify CI Gate)
+**Objective**: Commit and push Cycle 8 (integration test harness) to GitHub, then verify via GitHub Actions output that the new unit+integration gates are actually running on CI and in the publish workflow.
+**Complexity**: LOW
+
+- [ ] Task 45: Commit Cycle 8 changes and push to `main`
+ - File: /Users/leetan/Downloads/lt_code_repos/secretshields/*
+ - Action: MODIFY
+ - Details:
+   - Confirm working tree includes only Cycle 8 files:
+     - `package.json`, `package-lock.json`
+     - `.vscode-test.mjs`, `.vscodeignore`
+     - `test/integration/activation.test.js`, `test/integration/clipboard-mask.test.js`
+     - `.github/workflows/ci.yml`, `.github/workflows/publish.yml`
+     - `docs/publishing-runbook.md`
+     - `workflow_state.md` (plan checkbox updates + log + completion report for Cycle 8)
+     - removal of placeholder `test/integration/extension.test.ts`
+   - Ensure no downloaded VS Code artifacts are included (verify `.vscode-test/` remains ignored).
+   - Create a commit message that clearly scopes to Cycle 8, e.g.:
+     - `test: add VS Code integration harness and CI gate`
+   - Push to `origin/main` (repo: `Leectan/secretshields`).
+ - Acceptance:
+   - `git status` is clean.
+   - GitHub `main` HEAD includes the Cycle 8 commit.
+   - `workflow_state.md` on GitHub shows CycleCount 8 completed and Cycle 9 ready (or Cycle 8 completed if you commit that exact state).
+
+- [ ] Task 46: Verify CI run output proves the gate is active (GitHub Actions)
+ - File: /Users/leetan/Downloads/lt_code_repos/secretshields/.github/workflows/ci.yml
+ - Action: VERIFY
+ - Details:
+   - After push, use `gh run list` / `gh run view` to verify the latest `CI` workflow run on `main`:
+     - Node 20 job includes:
+       - `npm run test:unit`
+       - `xvfb-run -a npm run test:integration`
+     - Node 18 job does **not** attempt integration tests.
+   - Confirm integration run summary is acceptable:
+     - Activation tests pass
+     - Clipboard integration test may be skipped (pending) in headless hosts; ensure it does not fail the run.
+ - Acceptance:
+   - Latest `CI` run on `main` is green.
+   - Run logs clearly show both unit + integration steps executed (Node 20).
+
+- [ ] Task 47: Verify publish workflow is using the new scripts (without publishing)
+ - File: /Users/leetan/Downloads/lt_code_repos/secretshields/.github/workflows/publish.yml
+ - Action: VERIFY
+ - Details:
+   - Confirm `publish.yml` includes:
+     - `npm run test:unit`
+     - `xvfb-run -a npm run test:integration`
+     - prior to `vsce package` / publish steps.
+   - Do **not** create a `v*` tag in this cycle (publishing is a separate step gated on PAT secrets + manual smoke run).
+ - Acceptance:
+   - `publish.yml` on GitHub reflects the updated gate steps.
+
+- [ ] Task 48: Summarize remaining pre-publish checklist (no changes)
+ - File: /Users/leetan/Downloads/lt_code_repos/secretshields/docs/publishing-runbook.md
+ - Action: VERIFY
+ - Details:
+   - Confirm the only remaining blockers before Marketplace/OpenVSX publish are:
+     - One manual run of `docs/public-beta-checklist.md` in VS Code + Cursor
+     - Configure GitHub secrets: `VSCE_PAT`, `OVSX_PAT`
+     - Tag `v0.2.0` matching `package.json` and push tag
+ - Acceptance:
+   - Clear, minimal “go/no-go” checklist is captured in the Cycle 9 completion report.
+
+### Implementation Plan: SecretShields Cycle 8 (Integration Test Harness + Release Gate)
+**Objective**: Add a reliable, officially-supported VS Code integration test harness (runs in Extension Development Host) to tighten the release gate, while acknowledging that clipboard/UI behaviors still require a brief manual smoke run before Marketplace publish.
+**Complexity**: MEDIUM
+
+- [x] Task 40: Add VS Code integration test tooling (official approach)
+ - File: /Users/leetan/Downloads/lt_code_repos/secretshields/package.json
+ - Action: MODIFY
+ - Details:
+   - Add devDependencies:
+     - `@vscode/test-cli`
+     - `@vscode/test-electron`
+   - Add scripts:
+     - `test:unit`: run existing Vitest unit suite
+     - `test:integration`: run VS Code integration tests via `vscode-test --label integration`
+     - `test:all`: run unit then integration (for release gating)
+ - Acceptance:
+   - `npm run test:integration` launches an Extension Development Host and runs the integration suite.
+
+- [x] Task 41: Create `vscode-test` configuration for integration tests
+ - File: /Users/leetan/Downloads/lt_code_repos/secretshields/.vscode-test.mjs
+ - Action: CREATE
+ - Details:
+   - Use `defineConfig` from `@vscode/test-cli`.
+   - Define a single configuration with:
+     - `label: "integration"`
+     - `files: "test/integration/**/*.test.js"`
+     - `version: "stable"`
+     - `mocha.timeout`: e.g. 60000
+   - Include launch args to reduce noise/flakiness:
+     - `--disable-extensions`
+ - Acceptance:
+   - Running `npx vscode-test --label integration` discovers and executes tests in `test/integration/`.
+
+- [x] Task 42: Implement minimal integration tests (non-interactive, low-flake)
+ - File: /Users/leetan/Downloads/lt_code_repos/secretshields/test/integration/activation.test.js
+ - Action: CREATE
+ - Details:
+   - Verify extension activates without throwing.
+   - Verify command IDs exist via `vscode.commands.getCommands(true)`:
+     - `secretshields.maskClipboard`
+     - `secretshields.restoreLastSecret`
+     - `secretshields.showExposureLog`
+     - `secretshields.clearExposureLog`
+     - `secretshields.markRotated`
+ - File: /Users/leetan/Downloads/lt_code_repos/secretshields/test/integration/clipboard-mask.test.js
+ - Action: CREATE
+ - Details:
+   - Write a synthetic secret to `vscode.env.clipboard`.
+   - Execute `secretshields.maskClipboard`.
+   - Assert clipboard content changed and includes mask characters (and does not equal the original).
+   - If clipboard access fails in the test environment, skip with a clear message (avoid flaky hard-fail).
+ - Acceptance:
+   - Integration tests validate: activation + command registration + basic clipboard masking command path.
+   - Tests do not require UI interactions (no notifications or paste widget).
+
+- [x] Task 43: Wire integration tests into CI + publish gate (best-effort, non-flaky)
+ - File: /Users/leetan/Downloads/lt_code_repos/secretshields/.github/workflows/ci.yml
+ - Action: MODIFY
+ - Details:
+   - Add an Integration Tests step on Node 20 (Linux only) using Xvfb:
+     - `xvfb-run -a npm run test:integration`
+   - Keep unit tests as-is.
+ - File: /Users/leetan/Downloads/lt_code_repos/secretshields/.github/workflows/publish.yml
+ - Action: MODIFY
+ - Details:
+   - Add `npm run test:all` before packaging/publishing so tags can’t publish a broken build.
+ - Acceptance:
+   - CI runs integration suite on main/PR (Node 20).
+   - Publish workflow blocks on unit+integration failures.
+
+- [x] Task 44: Update docs to reflect the new test gate
+ - File: /Users/leetan/Downloads/lt_code_repos/secretshields/docs/publishing-runbook.md
+ - Action: MODIFY
+ - Details:
+   - Pre-release checks must include `npm run test:all`.
+   - Add an explicit statement: “Integration tests reduce risk but do not fully validate clipboard notifications or the editor paste widget; run `docs/public-beta-checklist.md` once before publishing.”
+ - Acceptance:
+   - Runbook matches the new automated gate and still mandates a minimal manual smoke run.
+
+### Dependencies (Cycle 8)
+- Task 42 depends on Task 40–41.
+- Task 43 depends on Task 40 and passing integration tests.
+- Task 44 depends on Task 40 scripts existing.
+
+### Testing Strategy (Cycle 8)
+- Local: `npm run test:unit`, `npm run test:integration`, `npm run test:all`
+- CI: verify integration suite is stable (no frequent flakes) before making it a hard gate for publishing.
+
 ### Implementation Plan: SecretShields Cycle 7 (Commit + Push + Release Readiness)
 **Objective**: Make the Cycle 5/6 rebrand + fixes actually land in the GitHub repo and prepare for production publishing (without changing product behavior).
 **Complexity**: LOW
@@ -23,7 +175,7 @@
  - Acceptance:
    - `git remote -v` shows `Leectan/secretshields.git` for both fetch and push.
 
-- [ ] Task 37: Commit all local changes from Cycle 5/6 and push to GitHub
+- [x] Task 37: Commit all local changes from Cycle 5/6 and push to GitHub
  - File: /Users/leetan/Downloads/lt_code_repos/secretshields/*
  - Action: MODIFY
  - Details:
@@ -36,7 +188,7 @@
    - `git status` clean.
    - `git push` succeeds and GitHub repo reflects latest code/docs.
 
-- [ ] Task 38: Post-push verification on GitHub (repo + Pages)
+- [x] Task 38: Post-push verification on GitHub (repo + Pages)
  - File: /Users/leetan/Downloads/lt_code_repos/secretshields/docs/index.md
  - Action: VERIFY
  - Details:
@@ -46,7 +198,7 @@
    - Pages site loads and shows SecretShields content.
    - Repo homepage points at `https://leectan.github.io/secretshields/`.
 
-- [ ] Task 39: Production publishing readiness checklist (no publishing yet)
+- [x] Task 39: Production publishing readiness checklist (no publishing yet)
  - File: /Users/leetan/Downloads/lt_code_repos/secretshields/docs/publishing-runbook.md
  - Action: VERIFY
  - Details:
@@ -785,9 +937,89 @@
 - [2026-02-18 T34] Task 34 complete: Added getEnabledPatterns() helper to documentPasteProvider.ts (same logic as clipboardMonitor's private method). Updated processPasteText() to accept optional enabledPatterns parameter and pass it to maskAllSecrets(). provideDocumentPasteEdits() now calls getEnabledPatterns() before processPasteText(). Added test proving disabled detector (AWS keys excluded from enabledPatterns set) returns null for AWS key paste. 62 tests pass.
 - [2026-02-18 T35] Task 35 complete: Validation pass — npm run lint (clean), npm test (62 passing), npm run build (dist/extension.js 17.14KB), npx vsce package (secretshields-0.2.0.vsix, 38.98KB, 17 files). Repo-wide `redakt` search returns only 3 expected files: workflow_state.md (historical logs), CHANGELOG.md (rename note), src/rotation/exposureStore.ts (legacy migration key).
 - [2026-02-18 T36] Task 36 complete: Updated git remote origin from https://github.com/Leectan/redakt.git to https://github.com/Leectan/secretshields.git. Verified fetch/push URLs both show new URL.
+- [2026-02-18 T37] Task 37 complete: Staged all 23 changed files. Created single commit (55ecd41) covering Cycle 5 rebrand + Cycle 6 fixes. Pushed main to origin successfully. Working tree clean.
+- [2026-02-18 T38] Task 38 complete: Post-push verification — GitHub repo shows name=secretshields, homepageUrl=https://leectan.github.io/secretshields/, issues enabled. Pages status=built, source=main:/docs. Live HTML title is "SecretShields" with correct OG metadata.
+- [2026-02-18 T39] Task 39 complete: Publishing readiness verified. publish.yml triggers on v* tags, uses VSCE_PAT + OVSX_PAT. Marketplace ID will be secretshields.secretshields (publisher=secretshields, name=secretshields). No secrets configured yet — repo ready to publish once VSCE_PAT and OVSX_PAT are added to GitHub repo settings.
+- [2026-02-18 T40] Task 40 complete: Installed @vscode/test-cli. Added scripts: test:unit (vitest run), test:integration (vscode-test --label integration), test:all (unit then integration). @vscode/test-electron already present.
+- [2026-02-18 T41] Task 41 complete: Created .vscode-test.mjs with defineConfig: label=integration, files=test/integration/**/*.test.js, version=stable, mocha timeout=60000, launchArgs=[--disable-extensions].
+- [2026-02-18 T42] Task 42 complete: Created test/integration/activation.test.js (3 tests: extension present, activates, all 5 commands registered) and clipboard-mask.test.js (1 test: masks synthetic AWS key with graceful skip if clipboard write not functional in test host). Removed old placeholder extension.test.ts. Added .vscode-test.mjs to .vscodeignore. Results: 3 passing, 1 pending (skipped), exit code 0.
+- [2026-02-18 T43] Task 43 complete: Updated ci.yml: split "Run tests" into "Run unit tests" + "Run integration tests" (Node 20 only, via xvfb-run). Updated publish.yml: replaced single "Run tests" with unit + integration steps (via xvfb-run). Both block on test failures before packaging/publishing.
+- [2026-02-18 T44] Task 44 complete: Updated publishing-runbook.md: pre-release checks now use `npm run test:all`, updated test counts, added note that integration tests don't cover clipboard UX or paste widget — manual beta checklist still required. Added explanation to step 5.
 
 ## CompletionReport
 <!-- Claude Code writes the completion summary here after finishing all tasks -->
+### Completion Report — Cycle 8: Integration Test Harness + Release Gate
+
+**All 5 tasks (40–44) completed successfully.**
+
+#### What Was Added
+1. **VS Code integration test tooling (Task 40)**: Installed `@vscode/test-cli`. Added `test:unit`, `test:integration`, and `test:all` scripts to package.json.
+2. **Test configuration (Task 41)**: Created `.vscode-test.mjs` with `defineConfig` — label `integration`, runs `test/integration/**/*.test.js` in stable VS Code with `--disable-extensions`, 60s Mocha timeout.
+3. **Integration tests (Task 42)**:
+   - `activation.test.js` — 3 tests: extension installed, activates without error, all 5 command IDs registered
+   - `clipboard-mask.test.js` — 1 test: writes synthetic AWS key to clipboard, executes maskClipboard command, verifies masking (gracefully skips if clipboard write not functional in headless test host)
+   - Removed old placeholder `extension.test.ts`
+4. **CI + publish gate (Task 43)**: Updated `ci.yml` to run unit + integration tests separately (integration on Node 20 via `xvfb-run`). Updated `publish.yml` to run both test suites before packaging/publishing.
+5. **Docs update (Task 44)**: Publishing runbook updated to reference `npm run test:all`, clarified that integration tests don't cover clipboard UX — manual beta checklist remains mandatory.
+
+#### Files Created (3 files)
+- `.vscode-test.mjs` — VS Code test configuration
+- `test/integration/activation.test.js` — activation + command registration tests
+- `test/integration/clipboard-mask.test.js` — clipboard masking command test
+
+#### Files Modified (5 files)
+- `package.json` — added `@vscode/test-cli`, new scripts (`test:unit`, `test:integration`, `test:all`)
+- `package-lock.json` — updated with new dependency
+- `.vscodeignore` — excludes `.vscode-test.mjs`
+- `.github/workflows/ci.yml` — split test steps, added xvfb integration tests
+- `.github/workflows/publish.yml` — added integration tests before publish
+- `docs/publishing-runbook.md` — updated pre-release checks and manual test note
+
+#### Files Removed (1 file)
+- `test/integration/extension.test.ts` — superseded by real integration tests
+
+#### Test Results
+- **Unit tests**: 62 passing (vitest)
+- **Integration tests**: 3 passing, 1 pending/skipped (clipboard test skips gracefully in headless host)
+- `npm run lint` — clean
+- `npm run build` — dist/extension.js (17.14 KB)
+- `npx vsce package` — secretshields-0.2.0.vsix (39.17 KB, 17 files)
+
+#### Deviations from Plan
+- **Clipboard test**: Changed from hard assertion to graceful skip when clipboard write from extension context is not functional in the test host. This prevents false failures in CI/headless environments while still validating when clipboard works. This aligns with the plan's directive: "If clipboard access fails in the test environment, skip with a clear message (avoid flaky hard-fail)."
+- No other deviations.
+
+---
+
+### Completion Report — Cycle 7: Commit + Push + Release Readiness
+
+**All 4 tasks (36–39) completed successfully.**
+
+#### Actions Taken
+1. **Git remote updated (Task 36)**: Changed origin URL from `Leectan/redakt.git` to `Leectan/secretshields.git` (matching the renamed repo from Cycle 5).
+2. **Committed and pushed (Task 37)**: Created single commit (55ecd41) covering all Cycle 5/6 changes (23 files, 646 insertions, 220 deletions). Pushed to `main` on GitHub. No secrets or stray artifacts in the commit.
+3. **Post-push verification (Task 38)**: GitHub repo metadata confirmed (name, homepage URL, issues enabled). GitHub Pages rebuilt successfully — live site title shows "SecretShields" with correct OG metadata. Source: `main:/docs`.
+4. **Publishing readiness (Task 39)**: `publish.yml` correctly triggers on `v*` tags and references `VSCE_PAT` + `OVSX_PAT` secrets. Marketplace ID will be `secretshields.secretshields`. No secrets configured yet — repo is ready to publish once the two PATs are added to GitHub repo settings.
+
+#### Commit Details
+- **Hash**: 55ecd41
+- **Message**: "Rebrand Redakt → SecretShields (v0.2.0) + post-rebrand fixes"
+- **Files**: 23 modified (source, docs, tests, config, workflow state)
+- **Branch**: `main` (pushed to origin)
+
+#### Publishing Checklist (Pending User Action)
+- [ ] Create VS Code Marketplace publisher `secretshields` at https://marketplace.visualstudio.com/manage
+- [ ] Generate PAT at https://dev.azure.com/ and add as `VSCE_PAT` secret in GitHub repo settings
+- [ ] Create OpenVSX namespace `secretshields` at https://open-vsx.org/
+- [ ] Generate OpenVSX token and add as `OVSX_PAT` secret in GitHub repo settings
+- [ ] Tag and push: `git tag v0.2.0 && git push origin v0.2.0` to trigger publish workflow
+
+#### Deviations from Plan
+- **Task 37**: Used a single commit instead of two (Cycle 5 + Cycle 6 separately) because file changes were interleaved across both cycles. Plan explicitly allowed "either one squashed commit or two commits."
+- No other deviations.
+
+---
+
 ### Completion Report — Cycle 6: Post-Rebrand Correctness Fixes
 
 **All 5 tasks (31–35) completed successfully.**
