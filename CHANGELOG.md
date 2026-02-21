@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.1] - 2026-02-21
+
+### Fixed
+- Publishing to the VS Code Marketplace: removed an invalid `categories` value that caused `vsce publish` to fail.
+
 ## [0.2.0] - 2026-02-18
 
 ### Changed
