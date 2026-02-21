@@ -51,7 +51,8 @@
         .font-mono { font-family: 'Fira Code', monospace; }
         
         .hero-gradient {
-            background: radial-gradient(circle at top center, rgba(14, 165, 233, 0.15) 0%, rgba(0, 0, 0, 0) 50%);
+            background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                        radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.15) 0%, transparent 40%);
         }
 
         .glass-panel {
@@ -81,7 +82,7 @@
         }
     </style>
 </head>
-<body class="bg-dark-950 text-zinc-300 antialiased selection:bg-primary-500 selection:text-white">
+<body class="bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-950 text-zinc-300 antialiased selection:bg-primary-500 selection:text-white min-h-screen">
 
     <!-- Navigation -->
     <nav class="fixed w-full z-50 glass-panel border-b border-zinc-800/50">
@@ -137,7 +138,7 @@
                 <!-- Interactive Hero UI Mockup -->
                 <div class="relative w-full max-w-lg mx-auto lg:mx-0 mt-12 lg:mt-0 animate-float">
                     <div class="absolute -inset-1 bg-gradient-to-r from-primary-500 to-emerald-500 rounded-xl blur opacity-20"></div>
-                    <div class="relative bg-dark-900 rounded-xl border border-zinc-800 shadow-2xl overflow-hidden">
+                    <div class="relative bg-slate-900/80 backdrop-blur-xl rounded-xl border border-white/10 shadow-2xl overflow-hidden">
                         
                         <!-- Mockup Header -->
                         <div class="bg-zinc-900/80 border-b border-zinc-800 px-4 py-3 flex items-center gap-2">
@@ -174,7 +175,7 @@
     </section>
 
     <!-- How it works / The Problem -->
-    <section class="py-20 border-t border-zinc-800/50 bg-dark-900">
+    <section class="py-20 border-t border-white/5 bg-slate-900/20 backdrop-blur-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-3xl mx-auto mb-16">
                 <h2 class="text-3xl font-bold text-white mb-4">The AI-era leakage problem. Solved.</h2>
@@ -246,7 +247,7 @@
     </section>
 
     <!-- Footer -->
-    <footer class="border-t border-zinc-800 bg-dark-950 py-12">
+    <footer class="border-t border-white/5 bg-slate-950/40 backdrop-blur-lg py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
             <div class="flex items-center gap-2">
                 <svg class="w-6 h-6 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
