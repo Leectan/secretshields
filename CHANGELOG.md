@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.2] - 2026-02-21
+
+### Fixed
+- Clipboard masking no longer gets stuck if a clipboard write fails. SecretShields now recovers cleanly and warns once if masking cannot be applied.
+
 ## [0.2.1] - 2026-02-21
 
 ### Fixed

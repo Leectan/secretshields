@@ -8,7 +8,7 @@ Execute each step in order. Total time: ~15 minutes.
 
 ## 1. Clipboard Masking (5 min)
 
-- [ ] **Copy an AWS key**: Copy `AKIAIOSFODNN7TESTKEY1` to clipboard. Within ~1 second, a notification should appear saying "Masked 1 secret(s)". Paste into any editor — should show `AKIA████████████KEY1` (masked).
+- [ ] **Copy an AWS key**: Copy `AKIAIOSFODNN7TSTKEY1` to clipboard. Within ~1 second, a notification should appear saying "Masked 1 secret(s)". Paste into any editor — should show `AKIA████████████KEY1` (masked).
 - [ ] **Copy clean text**: Copy `Hello world` to clipboard. No notification should appear. Paste — should show `Hello world` unchanged.
 - [ ] **Copy multiple secrets**: Copy text containing both an AWS key and a GitHub token. Notification should say "Masked 2 secret(s)".
 - [ ] **Manual mask**: Copy a secret, dismiss the notification, then run command `SecretShields: Mask Clipboard Now`. Clipboard should be masked.

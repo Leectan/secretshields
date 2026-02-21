@@ -26,12 +26,12 @@ export function activate(context: vscode.ExtensionContext): void {
     statusBar,
     countdownManager,
 
-    vscode.commands.registerCommand("secretshields.maskClipboard", () => {
-      clipboardMonitor?.maskClipboardNow();
+    vscode.commands.registerCommand("secretshields.maskClipboard", async () => {
+      await clipboardMonitor?.maskClipboardNow();
     }),
 
-    vscode.commands.registerCommand("secretshields.restoreLastSecret", () => {
-      clipboardMonitor?.restoreLastSecret();
+    vscode.commands.registerCommand("secretshields.restoreLastSecret", async () => {
+      await clipboardMonitor?.restoreLastSecret();
     }),
 
     vscode.commands.registerCommand("secretshields.showExposureLog", () => {

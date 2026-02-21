@@ -20,6 +20,7 @@ export class ClipboardMonitor {
   private lastClipboard = "";
   private cachedSecret: CachedSecret | undefined;
   private isMasking = false; // prevents re-detection of our own masked writes
+  private didWarnClipboardWriteFailure = false;
 
   constructor(
     private readonly exposureStore: ExposureStore,
@@ -69,9 +70,18 @@ export class ClipboardMonitor {
 
     this.cacheOriginal(text, detections);
     this.isMasking = true;
-    await vscode.env.clipboard.writeText(masked);
-    this.lastClipboard = masked;
-    this.isMasking = false;
+    try {
+      await vscode.env.clipboard.writeText(masked);
+      this.lastClipboard = masked;
+    } catch {
+      this.cachedSecret = undefined;
+      vscode.window.showWarningMessage(
+        "SecretShields: Failed to write masked clipboard. Clipboard access may be restricted."
+      );
+      return;
+    } finally {
+      this.isMasking = false;
+    }
 
     vscode.window.showInformationMessage(
       `SecretShields: Masked ${detections.length} secret(s) in clipboard.`
@@ -94,9 +104,17 @@ export class ClipboardMonitor {
 
     // Restore original to clipboard
     this.isMasking = true;
-    await vscode.env.clipboard.writeText(this.cachedSecret.original);
-    this.lastClipboard = this.cachedSecret.original;
-    this.isMasking = false;
+    try {
+      await vscode.env.clipboard.writeText(this.cachedSecret.original);
+      this.lastClipboard = this.cachedSecret.original;
+    } catch {
+      vscode.window.showWarningMessage(
+        "SecretShields: Failed to restore clipboard. Clipboard access may be restricted."
+      );
+      return;
+    } finally {
+      this.isMasking = false;
+    }
 
     // Create exposure events for each detected secret
     const config = vscode.workspace.getConfiguration("secretshields");
@@ -162,9 +180,23 @@ export class ClipboardMonitor {
       if (autoMask) {
         this.cacheOriginal(text, detections);
         this.isMasking = true;
-        await vscode.env.clipboard.writeText(masked);
-        this.lastClipboard = masked;
-        this.isMasking = false;
+        try {
+          await vscode.env.clipboard.writeText(masked);
+          this.lastClipboard = masked;
+        } catch {
+          // If the masked write fails, clear the cache (we did not actually mask anything)
+          // and keep monitoring instead of getting stuck in isMasking=true.
+          this.cachedSecret = undefined;
+          if (!this.didWarnClipboardWriteFailure) {
+            this.didWarnClipboardWriteFailure = true;
+            vscode.window.showWarningMessage(
+              "SecretShields: Failed to write masked clipboard. Clipboard access may be restricted."
+            );
+          }
+          return;
+        } finally {
+          this.isMasking = false;
+        }
 
         const ttl = config.get<number>("restoreTTLSeconds", 60);
         const choice = await vscode.window.showWarningMessage(
@@ -195,6 +227,7 @@ export class ClipboardMonitor {
       }
     } catch {
       // Clipboard read can fail if permission denied; silently skip
+      this.isMasking = false;
     }
   }
 
