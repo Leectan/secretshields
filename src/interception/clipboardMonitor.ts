@@ -24,7 +24,8 @@ export class ClipboardMonitor {
 
   constructor(
     private readonly exposureStore: ExposureStore,
-    private readonly countdownManager: CountdownManager
+    private readonly countdownManager: CountdownManager,
+    private readonly onMasked?: (detections: DetectionResult[]) => void
   ) {}
 
   start(): void {
@@ -81,6 +82,12 @@ export class ClipboardMonitor {
       return;
     } finally {
       this.isMasking = false;
+    }
+
+    try {
+      this.onMasked?.(detections);
+    } catch {
+      // Never let telemetry/signals break masking.
     }
 
     vscode.window.showInformationMessage(
@@ -196,6 +203,12 @@ export class ClipboardMonitor {
           return;
         } finally {
           this.isMasking = false;
+        }
+
+        try {
+          this.onMasked?.(detections);
+        } catch {
+          // Never let telemetry/signals break masking.
         }
 
         const ttl = config.get<number>("restoreTTLSeconds", 60);

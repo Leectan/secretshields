@@ -44,6 +44,7 @@ SecretShields is designed with privacy as a core feature:
 | `secretshields.autoMask` | `true` | Automatically mask detected secrets |
 | `secretshields.restoreTTLSeconds` | `60` | Seconds to allow restoring original secret |
 | `secretshields.pollIntervalMs` | `1000` | Clipboard polling interval (ms) |
+| `secretshields.maskingSignal.mode` | `"statusBar"` | Always-visible masking feedback: `off`, `statusBar`, `output`, or `both` |
 | `secretshields.countdownMinutes.critical` | `15` | Rotation reminder for critical secrets (min) |
 | `secretshields.countdownMinutes.high` | `60` | Rotation reminder for high secrets (min) |
 | `secretshields.countdownMinutes.medium` | `240` | Rotation reminder for medium secrets (min) |

@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.3] - 2026-02-21
+
+### Added
+- Optional always-visible masking signal (`secretshields.maskingSignal.mode`) via status bar pulse and/or Output channel logging, so masking feedback still appears even when toast notifications are suppressed.
+
 ## [0.2.2] - 2026-02-21
 
 ### Fixed

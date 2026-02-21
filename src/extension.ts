@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { ClipboardMonitor } from "./interception/clipboardMonitor";
 import { registerPasteProvider } from "./interception/documentPasteProvider";
+import type { DetectionResult } from "./detection/engine";
 import { ExposureStore } from "./rotation/exposureStore";
 import { CountdownManager } from "./rotation/countdownManager";
 import { createStatusBar } from "./ui/statusBar";
@@ -14,8 +15,39 @@ export function activate(context: vscode.ExtensionContext): void {
   const countdownManager = new CountdownManager(exposureStore);
   const treeProvider = new ExposureTreeProvider(exposureStore);
   const statusBar = createStatusBar(exposureStore);
+  const output = vscode.window.createOutputChannel("SecretShields");
 
-  clipboardMonitor = new ClipboardMonitor(exposureStore, countdownManager);
+  context.subscriptions.push(output);
+
+  const signalMaskEvent = (detections: DetectionResult[]): void => {
+    const config = vscode.workspace.getConfiguration("secretshields");
+    const mode = config.get<string>("maskingSignal.mode", "statusBar");
+    if (mode === "off") {
+      return;
+    }
+
+    const count = detections.length;
+
+    if (mode === "statusBar" || mode === "both") {
+      statusBar.pulseMasked(count);
+    }
+
+    if (mode === "output" || mode === "both") {
+      const providers = Array.from(new Set(detections.map((d) => d.provider)))
+        .sort()
+        .join(", ");
+      const timestamp = new Date().toISOString();
+      output.appendLine(
+        `[${timestamp}] Masked ${count} secret(s) in clipboard${providers ? ` (${providers})` : ""}.`
+      );
+    }
+  };
+
+  clipboardMonitor = new ClipboardMonitor(
+    exposureStore,
+    countdownManager,
+    signalMaskEvent
+  );
 
   const tree = vscode.window.createTreeView("secretshields.exposureLog", {
     treeDataProvider: treeProvider,

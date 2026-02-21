@@ -2,7 +2,7 @@
   "name": "secretshields",
   "displayName": "SecretShields — Secret Shield for AI Chat",
   "description": "Local-first clipboard secret masking. Prevents accidental secret leakage into AI chats, terminals, and pastebins.",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "publisher": "secretshields",
   "license": "MIT",
   "icon": "media/shield.png",
@@ -80,6 +80,23 @@
           "minimum": 500,
           "maximum": 5000,
           "description": "Clipboard polling interval in milliseconds."
+        },
+        "secretshields.maskingSignal.mode": {
+          "type": "string",
+          "default": "statusBar",
+          "enum": [
+            "off",
+            "statusBar",
+            "output",
+            "both"
+          ],
+          "enumDescriptions": [
+            "No always-visible signal (toast notifications only).",
+            "Show a short status bar pulse when masking occurs (helps if toasts are suppressed).",
+            "Log masking events to the 'SecretShields' Output channel.",
+            "Show status bar pulse and log to Output channel."
+          ],
+          "description": "When secrets are masked in the clipboard, emit an always-visible signal so you're not dependent on toast notifications."
         },
         "secretshields.detectors.awsKeys": {
           "type": "boolean",
