@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SecretShields — Secure Your Workflow While You Build</title>
+  <meta name="description" content="Local-first clipboard masking that prevents secret leaks into AI chats, terminals, and pastebins. Zero telemetry. Zero friction.">
+  <meta property="og:title" content="SecretShields — Secure Your Workflow While You Build">
+  <meta property="og:description" content="Auto-mask secrets before you paste into Cursor, Copilot, or any AI chat. 100% local. Zero telemetry.">
+  <meta property="og:url" content="https://leectan.github.io/secretshields/">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SecretShields — Secure Your Workflow While You Build">
+  <meta name="twitter:description" content="Auto-mask secrets before you paste into Cursor, Copilot, or any AI chat. 100% local. Zero telemetry.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#0a0a0f;
+      --bg-card:#12121a;
+      --bg-card-hover:#1a1a26;
+      --border:#1e1e2e;
+      --text:#e2e2ef;
+      --text-dim:#8888a0;
+      --accent:#6c63ff;
+      --accent-glow:rgba(108,99,255,.15);
+      --green:#34d399;
+      --amber:#fbbf24;
+      --red:#f87171;
+      --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',sans-serif;
+      --mono:'SF Mono','Fira Code','Cascadia Code',monospace;
+    }
+    html{scroll-behavior:smooth;font-size:16px}
+    body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.6;overflow-x:hidden}
+    a{color:var(--accent);text-decoration:none;transition:opacity .2s}
+    a:hover{opacity:.85}
+
+    .container{max-width:1120px;margin:0 auto;padding:0 24px}
+
+    /* ── NAV ── */
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;backdrop-filter:blur(16px);background:rgba(10,10,15,.8);border-bottom:1px solid var(--border)}
+    .nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px}
+    .nav-brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.1rem;letter-spacing:-.02em}
+    .nav-brand svg{width:28px;height:28px}
+    .nav-links{display:flex;gap:28px;align-items:center}
+    .nav-links a{color:var(--text-dim);font-size:.9rem;font-weight:500;transition:color .2s}
+    .nav-links a:hover{color:var(--text);opacity:1}
+    .nav-cta{background:var(--accent);color:#fff;padding:8px 20px;border-radius:8px;font-size:.85rem;font-weight:600;transition:transform .2s,box-shadow .2s}
+    .nav-cta:hover{transform:translateY(-1px);box-shadow:0 4px 20px var(--accent-glow);opacity:1}
+
+    /* ── HERO ── */
+    .hero{padding:160px 0 100px;text-align:center;position:relative}
+    .hero::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,var(--accent-glow) 0%,transparent 70%);pointer-events:none;z-index:0}
+    .hero>*{position:relative;z-index:1}
+    .hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border:1px solid var(--border);border-radius:100px;font-size:.8rem;color:var(--text-dim);margin-bottom:28px;background:var(--bg-card)}
+    .hero-badge .dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse-dot 2s infinite}
+    @keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.4}}
+    .hero h1{font-size:clamp(2.4rem,5vw,3.8rem);font-weight:800;letter-spacing:-.03em;line-height:1.1;max-width:800px;margin:0 auto 24px}
+    .hero h1 .highlight{background:linear-gradient(135deg,var(--accent),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .hero p{font-size:1.15rem;color:var(--text-dim);max-width:580px;margin:0 auto 40px;line-height:1.7}
+    .hero-actions{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;border-radius:10px;font-size:.95rem;font-weight:600;transition:all .2s;border:none;cursor:pointer}
+    .btn-primary{background:var(--accent);color:#fff}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px var(--accent-glow)}
+    .btn-secondary{background:transparent;color:var(--text);border:1px solid var(--border)}
+    .btn-secondary:hover{border-color:var(--accent);background:var(--accent-glow)}
+
+    /* ── DEMO TERMINAL ── */
+    .demo{max-width:680px;margin:60px auto 0;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--bg-card);box-shadow:0 20px 60px rgba(0,0,0,.4)}
+    .demo-bar{display:flex;align-items:center;gap:8px;padding:12px 16px;background:rgba(0,0,0,.3);border-bottom:1px solid var(--border)}
+    .demo-dot{width:12px;height:12px;border-radius:50%}
+    .demo-dot:nth-child(1){background:#ff5f57}
+    .demo-dot:nth-child(2){background:#febc2e}
+    .demo-dot:nth-child(3){background:#28c840}
+    .demo-bar span{margin-left:auto;font-size:.75rem;color:var(--text-dim);font-family:var(--mono)}
+    .demo-content{padding:24px;font-family:var(--mono);font-size:.85rem;line-height:1.8}
+    .demo-line{display:flex;gap:12px}
+    .demo-prompt{color:var(--green);white-space:nowrap}
+    .demo-text{color:var(--text-dim)}
+    .demo-masked{color:var(--amber);font-weight:600}
+    .demo-info{color:var(--accent)}
+    .demo-separator{height:1px;background:var(--border);margin:12px 0}
+
+    /* ── TRUST BAR ── */
+    .trust{padding:60px 0;border-bottom:1px solid var(--border)}
+    .trust-inner{display:flex;justify-content:center;gap:48px;flex-wrap:wrap;align-items:center}
+    .trust-item{display:flex;align-items:center;gap:10px;color:var(--text-dim);font-size:.9rem;font-weight:500}
+    .trust-icon{width:20px;height:20px;flex-shrink:0}
+
+    /* ── PROBLEM ── */
+    .problem{padding:100px 0;text-align:center}
+    .section-label{display:inline-block;padding:4px 14px;border-radius:100px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px}
+    .label-red{background:rgba(248,113,113,.1);color:var(--red);border:1px solid rgba(248,113,113,.2)}
+    .label-green{background:rgba(52,211,153,.1);color:var(--green);border:1px solid rgba(52,211,153,.2)}
+    .label-blue{background:var(--accent-glow);color:var(--accent);border:1px solid rgba(108,99,255,.2)}
+    .problem h2{font-size:2.2rem;font-weight:800;letter-spacing:-.02em;margin-bottom:16px}
+    .problem>p{color:var(--text-dim);max-width:600px;margin:0 auto 48px;font-size:1.05rem}
+    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px;max-width:800px;margin:0 auto}
+    .stat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:32px 24px;text-align:center;transition:border-color .3s}
+    .stat-card:hover{border-color:var(--red)}
+    .stat-number{font-size:2.4rem;font-weight:800;color:var(--red);letter-spacing:-.02em}
+    .stat-label{color:var(--text-dim);font-size:.9rem;margin-top:4px}
+
+    /* ── HOW IT WORKS ── */
+    .how{padding:100px 0}
+    .how h2{font-size:2.2rem;font-weight:800;letter-spacing:-.02em;text-align:center;margin-bottom:16px}
+    .how>p{text-align:center;color:var(--text-dim);max-width:540px;margin:0 auto 60px;font-size:1.05rem}
+    .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px}
+    .step{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:36px 28px;position:relative;transition:border-color .3s,transform .3s}
+    .step:hover{border-color:var(--accent);transform:translateY(-4px)}
+    .step-number{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:10px;background:var(--accent-glow);color:var(--accent);font-weight:800;font-size:1.1rem;margin-bottom:20px;border:1px solid rgba(108,99,255,.2)}
+    .step h3{font-size:1.15rem;font-weight:700;margin-bottom:10px}
+    .step p{color:var(--text-dim);font-size:.9rem;line-height:1.6}
+
+    /* ── FEATURES ── */
+    .features{padding:100px 0}
+    .features h2{font-size:2.2rem;font-weight:800;letter-spacing:-.02em;text-align:center;margin-bottom:60px}
+    .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+    .feature{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:32px 28px;transition:border-color .3s}
+    .feature:hover{border-color:var(--accent)}
+    .feature-icon{font-size:1.6rem;margin-bottom:16px}
+    .feature h3{font-size:1.05rem;font-weight:700;margin-bottom:8px}
+    .feature p{color:var(--text-dim);font-size:.88rem;line-height:1.6}
+
+    /* ── DETECTORS ── */
+    .detectors{padding:80px 0;text-align:center}
+    .detectors h2{font-size:2.2rem;font-weight:800;letter-spacing:-.02em;margin-bottom:48px}
+    .detector-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;max-width:700px;margin:0 auto}
+    .detector-pill{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border:1px solid var(--border);border-radius:100px;font-size:.85rem;font-weight:500;color:var(--text-dim);background:var(--bg-card);transition:border-color .2s,color .2s}
+    .detector-pill:hover{border-color:var(--accent);color:var(--text)}
+
+    /* ── CTA ── */
+    .cta{padding:100px 0;text-align:center}
+    .cta-box{background:linear-gradient(135deg,rgba(108,99,255,.08),rgba(167,139,250,.08));border:1px solid rgba(108,99,255,.2);border-radius:20px;padding:64px 40px;max-width:720px;margin:0 auto}
+    .cta-box h2{font-size:2rem;font-weight:800;letter-spacing:-.02em;margin-bottom:16px}
+    .cta-box p{color:var(--text-dim);font-size:1.05rem;margin-bottom:36px;max-width:480px;margin-left:auto;margin-right:auto}
+    .cta-buttons{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+
+    /* ── FOOTER ── */
+    footer{padding:40px 0;border-top:1px solid var(--border);text-align:center}
+    footer p{color:var(--text-dim);font-size:.8rem}
+    footer a{color:var(--text-dim)}
+    footer a:hover{color:var(--accent)}
+    .footer-links{display:flex;gap:24px;justify-content:center;margin-bottom:12px}
+
+    @media(max-width:640px){
+      .nav-links{display:none}
+      .hero{padding:120px 0 60px}
+      .stats{grid-template-columns:1fr}
+      .steps{grid-template-columns:1fr}
+      .feature-grid{grid-template-columns:1fr}
+      .trust-inner{gap:24px}
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="container nav-inner">
+    <div class="nav-brand">
+      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M16 2L4 8v8c0 7.73 5.12 14.95 12 16.8C22.88 30.95 28 23.73 28 16V8L16 2z" fill="rgba(108,99,255,.2)" stroke="#6c63ff" stroke-width="2"/>
+        <path d="M12 16l3 3 5-6" stroke="#6c63ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      SecretShields
+    </div>
+    <div class="nav-links">
+      <a href="#problem">Why</a>
+      <a href="#how">How It Works</a>
+      <a href="#features">Features</a>
+      <a href="https://github.com/Leectan/secretshields" target="_blank">GitHub</a>
+      <a href="https://marketplace.visualstudio.com/items?itemName=secretshields.secretshields" target="_blank" class="nav-cta">Install Free</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">
+      <span class="dot"></span>
+      Open source &middot; MIT Licensed &middot; v0.2.3
+    </div>
+    <h1>Secure your workflow while you build.<br><span class="highlight">Without the friction.</span></h1>
+    <p>SecretShields auto-masks API keys, tokens, and credentials in your clipboard before you paste them into AI chats, terminals, or anywhere else. 100% local. Zero telemetry.</p>
+    <div class="hero-actions">
+      <a href="https://marketplace.visualstudio.com/items?itemName=secretshields.secretshields" target="_blank" class="btn btn-primary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+        Install for VS Code
+      </a>
+      <a href="https://open-vsx.org/extension/secretshields/secretshields" target="_blank" class="btn btn-secondary">Install for Cursor</a>
+      <a href="https://github.com/Leectan/secretshields" target="_blank" class="btn btn-secondary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.43 9.8 8.21 11.39.6.11.79-.26.79-.58v-2.17c-3.34.73-4.04-1.42-4.04-1.42-.55-1.39-1.34-1.76-1.34-1.76-1.09-.74.08-.73.08-.73 1.21.08 1.85 1.24 1.85 1.24 1.07 1.84 2.81 1.31 3.5 1 .1-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.12-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23A11.5 11.5 0 0112 5.8c1.02 0 2.05.14 3.01.4 2.28-1.55 3.29-1.23 3.29-1.23.66 1.66.24 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.19.7.8.58A12.01 12.01 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        View Source
+      </a>
+    </div>
+
+    <!-- DEMO TERMINAL -->
+    <div class="demo">
+      <div class="demo-bar">
+        <div class="demo-dot"></div>
+        <div class="demo-dot"></div>
+        <div class="demo-dot"></div>
+        <span>clipboard &mdash; secretshields</span>
+      </div>
+      <div class="demo-content">
+        <div class="demo-line">
+          <span class="demo-prompt">copy</span>
+          <span class="demo-text">AKIAIOSFODNN7TSTKEY1</span>
+        </div>
+        <div class="demo-separator"></div>
+        <div class="demo-line">
+          <span class="demo-prompt">shield</span>
+          <span class="demo-info">Detected 1 secret (AWS Access Key ID, critical)</span>
+        </div>
+        <div class="demo-line">
+          <span class="demo-prompt">mask</span>
+          <span class="demo-masked">AKIA████████████KEY1</span>
+        </div>
+        <div class="demo-separator"></div>
+        <div class="demo-line">
+          <span class="demo-prompt">paste</span>
+          <span class="demo-text">Cursor AI Chat &rarr; <span class="demo-masked">AKIA████████████KEY1</span></span>
+        </div>
+        <div class="demo-line" style="margin-top:4px">
+          <span class="demo-prompt" style="color:var(--green)">&check;</span>
+          <span style="color:var(--green);font-weight:600">Secret never left your machine.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST BAR -->
+<section class="trust">
+  <div class="container trust-inner">
+    <div class="trust-item">
+      <svg class="trust-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      100% Local
+    </div>
+    <div class="trust-item">
+      <svg class="trust-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64A9 9 0 015.64 19.36M1 1l22 22"/></svg>
+      Zero Telemetry
+    </div>
+    <div class="trust-item">
+      <svg class="trust-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      No Raw Secret Persistence
+    </div>
+    <div class="trust-item">
+      <svg class="trust-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/></svg>
+      Open Source (MIT)
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="problem" id="problem">
+  <div class="container">
+    <span class="section-label label-red">The Problem</span>
+    <h2>AI coding is fast. Secret leaks are faster.</h2>
+    <p>Developers paste credentials into AI chats every day. Once you hit Enter, that secret sits on someone else's servers.</p>
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-number">23.8M</div>
+        <div class="stat-label">Secrets leaked on GitHub in 2024</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">70%</div>
+        <div class="stat-label">of leaked secrets from 2022 still active</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">~30%</div>
+        <div class="stat-label">of breaches start with stolen credentials</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="container">
+    <span class="section-label label-green">How It Works</span>
+    <h2>Three steps. Zero friction.</h2>
+    <p>SecretShields works at the clipboard level, so it protects every app you paste into.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-number">1</div>
+        <h3>Copy as usual</h3>
+        <p>Copy text containing an API key, database URL, or any credential. SecretShields detects it within ~1 second.</p>
+      </div>
+      <div class="step">
+        <div class="step-number">2</div>
+        <h3>Clipboard is masked</h3>
+        <p>Your clipboard is silently rewritten with a masked version. A status bar pulse confirms the action &mdash; no workflow interruption.</p>
+      </div>
+      <div class="step">
+        <div class="step-number">3</div>
+        <h3>Paste anywhere safely</h3>
+        <p>Paste into Cursor, Copilot, Claude Code, terminals, Slack, or any app. The secret never leaves your machine.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="container">
+    <span class="section-label label-blue">Features</span>
+    <h2>Built for developers who move fast</h2>
+    <div class="feature-grid">
+      <div class="feature">
+        <div class="feature-icon">&#x26A1;</div>
+        <h3>Clipboard-First Masking</h3>
+        <p>Masks secrets at the system clipboard level within ~1s of copying. Protects AI chats, terminals, pastebins, and any other paste target.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">&#x1F504;</div>
+        <h3>Restore with TTL</h3>
+        <p>Need the real value? Restore for a configurable window (default 60s). SecretShields automatically starts a rotation reminder countdown.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">&#x1F514;</div>
+        <h3>Rotation Reminders</h3>
+        <p>When you expose a secret, a countdown fires. On expiry, you get a notification with a direct link to the provider's rotation page.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">&#x1F4CB;</div>
+        <h3>Exposure Log</h3>
+        <p>Track which secrets were exposed, when, and their rotation status. Only masked previews are stored &mdash; never raw values.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">&#x1F4CB;</div>
+        <h3>Editor Paste Widget</h3>
+        <p>Optionally intercepts paste in code editors with a "Paste with SecretShields masking" option. Configurable: offer, auto, or off.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">&#x1F6E1;</div>
+        <h3>Always-Visible Signal</h3>
+        <p>Status bar pulse and optional Output channel logging ensure you always know when masking occurs &mdash; even if notifications are suppressed.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DETECTORS -->
+<section class="detectors" id="detectors">
+  <div class="container">
+    <span class="section-label label-blue">Detection</span>
+    <h2>10+ secret patterns, built in</h2>
+    <div class="detector-grid">
+      <div class="detector-pill">AWS Access Keys</div>
+      <div class="detector-pill">AWS Secret Keys</div>
+      <div class="detector-pill">GitHub Tokens</div>
+      <div class="detector-pill">Stripe Keys</div>
+      <div class="detector-pill">OpenAI Keys</div>
+      <div class="detector-pill">Anthropic Keys</div>
+      <div class="detector-pill">Google API Keys</div>
+      <div class="detector-pill">Database URLs</div>
+      <div class="detector-pill">SSH Private Keys</div>
+      <div class="detector-pill">JWTs</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+  <div class="container">
+    <div class="cta-box">
+      <h2>Start building securely. Right now.</h2>
+      <p>Install SecretShields in under 10 seconds. No account, no config, no telemetry. Just protection.</p>
+      <div class="cta-buttons">
+        <a href="https://marketplace.visualstudio.com/items?itemName=secretshields.secretshields" target="_blank" class="btn btn-primary">Install for VS Code</a>
+        <a href="https://open-vsx.org/extension/secretshields/secretshields" target="_blank" class="btn btn-secondary">Install for Cursor</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-links">
+      <a href="https://github.com/Leectan/secretshields">GitHub</a>
+      <a href="https://github.com/Leectan/secretshields/issues">Issues</a>
+      <a href="https://marketplace.visualstudio.com/items?itemName=secretshields.secretshields">VS Code Marketplace</a>
+      <a href="https://open-vsx.org/extension/secretshields/secretshields">OpenVSX</a>
+    </div>
+    <p>SecretShields &middot; MIT License &middot; Made for developers who ship fast and stay safe.</p>
+  </div>
+</footer>
+
+</body>
+</html>
