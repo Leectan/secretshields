@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.3.0] - 2026-02-22
+
+### Added
+- **27 new platform detectors** (39 total patterns across 30+ platforms): Vercel, Slack (tokens + webhooks), SendGrid, Shopify, Twilio, DigitalOcean, npm, PyPI, HashiCorp Vault, Doppler, Linear, Grafana, New Relic, Heroku, PlanetScale, Docker Hub, Resend, Supabase, Netlify, Appwrite, Cloudflare Origin CA, Discord webhooks.
+- **Per-pattern `validate()` hook** for custom false positive filtering beyond regex and entropy.
+- **Database URL placeholder password detection**: URLs with common placeholder passwords (`password`, `changeme`, `root`, `admin`, `secret`, `test`, etc.) and template variables (`${VAR}`, `{{VAR}}`) are automatically skipped.
+- **JWT structural validation**: JWTs are now verified by decoding the base64url header and checking for a valid JSON object with an `alg` field.
+- **Stripe publishable key toggle** (`secretshields.detectors.stripePublishableKeys`): separated from secret keys, disabled by default since publishable keys are designed to be public.
+- 23 new per-platform detector toggle settings in VS Code configuration.
+- Expanded ALLOWLIST with additional known documentation/example values.
+- Supported Platforms table in README.
+
+### Changed
+- **Twilio detection split**: Account SID (`AC`) now requires keyword context (e.g., `account_sid=`, `TWILIO_ACCOUNT_SID=`) to avoid false positives from MD5 hashes. API Key SID (`SK`) remains prefix-only.
+- **Resend regex tightened**: removed underscore from body charset to prevent matching variable names.
+- **Slack token minimum body** raised from 10 to 20 characters.
+- **OpenAI v2 key minimum body** raised from 40 to 80 characters.
+- **AWS Access Key ID charset** corrected to base32 `[A-Z2-7]` (digits 0, 1, 8, 9 never appear in real keys).
+- **Dynamic config key derivation**: `getEnabledPatterns()` in clipboardMonitor and documentPasteProvider now derives config keys from the PATTERNS array instead of a hardcoded list, ensuring new detectors work correctly when any detector is disabled.
+- Stripe secret/restricted key pattern expanded to include test keys (`sk_test_`, `rk_test_`) and webhook signing secrets (`whsec_`).
+
 ## [0.2.4] - 2026-02-21
 
 ### Fixed
