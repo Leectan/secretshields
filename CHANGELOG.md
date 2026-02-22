@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.4] - 2026-02-21
+
+### Fixed
+- Cancel in-flight clipboard masking when the extension is disabled or deactivated, preventing post-disable clipboard writes and stale toast actions from taking effect.
+- Defensive best-effort handler stops clipboard monitoring immediately if the extension is uninstalled while the host is still running.
+- Note: previously-masked clipboard contents remain masked (by design — SecretShields never restores raw secrets on shutdown).
+
 ## [0.2.3] - 2026-02-21
 
 ### Added

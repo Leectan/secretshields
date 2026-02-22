@@ -16,11 +16,14 @@ interface CachedSecret {
  */
 export class ClipboardMonitor {
   private timer: ReturnType<typeof setTimeout> | undefined;
+  private cacheExpiryTimer: ReturnType<typeof setTimeout> | undefined;
   private running = false;
   private lastClipboard = "";
   private cachedSecret: CachedSecret | undefined;
   private isMasking = false; // prevents re-detection of our own masked writes
   private didWarnClipboardWriteFailure = false;
+  /** Monotonic generation counter — incremented on start()/stop() to cancel in-flight work. */
+  private generation = 0;
 
   constructor(
     private readonly exposureStore: ExposureStore,
@@ -32,16 +35,24 @@ export class ClipboardMonitor {
     if (this.running) {
       return;
     }
+    this.generation++;
     this.running = true;
     this.scheduleNext();
   }
 
   stop(): void {
+    this.generation++;
     this.running = false;
     if (this.timer) {
       clearTimeout(this.timer);
       this.timer = undefined;
     }
+    if (this.cacheExpiryTimer) {
+      clearTimeout(this.cacheExpiryTimer);
+      this.cacheExpiryTimer = undefined;
+    }
+    this.cachedSecret = undefined;
+    this.isMasking = false;
   }
 
   private scheduleNext(): void {
@@ -162,8 +173,16 @@ export class ClipboardMonitor {
       return;
     }
 
+    // Capture generation at entry to detect stop() during awaits.
+    const gen = this.generation;
+
     try {
       const text = await vscode.env.clipboard.readText();
+
+      // After every await, bail if stopped.
+      if (gen !== this.generation || !this.running) {
+        return;
+      }
 
       // Skip if clipboard hasn't changed
       if (text === this.lastClipboard || !text) {
@@ -189,6 +208,10 @@ export class ClipboardMonitor {
         this.isMasking = true;
         try {
           await vscode.env.clipboard.writeText(masked);
+          // Bail if stopped during the write.
+          if (gen !== this.generation || !this.running) {
+            return;
+          }
           this.lastClipboard = masked;
         } catch {
           // If the masked write fails, clear the cache (we did not actually mask anything)
@@ -219,6 +242,11 @@ export class ClipboardMonitor {
           "Disable SecretShields"
         );
 
+        // After the toast resolves, bail if stopped during the wait.
+        if (gen !== this.generation || !this.running) {
+          return;
+        }
+
         if (choice === `Restore for ${ttl}s (Exposes)`) {
           await this.restoreLastSecret();
         } else if (choice === "Disable SecretShields") {
@@ -233,6 +261,11 @@ export class ClipboardMonitor {
           "Mask Clipboard",
           "Ignore"
         );
+
+        // Bail if stopped during the wait.
+        if (gen !== this.generation || !this.running) {
+          return;
+        }
 
         if (choice === "Mask Clipboard") {
           await this.maskClipboardNow();
@@ -253,11 +286,17 @@ export class ClipboardMonitor {
       expiresAt: Date.now() + ttlSeconds * 1000,
     };
 
+    // Clear any previous expiry timer
+    if (this.cacheExpiryTimer) {
+      clearTimeout(this.cacheExpiryTimer);
+    }
+
     // Auto-expire the cache
-    setTimeout(() => {
+    this.cacheExpiryTimer = setTimeout(() => {
       if (this.cachedSecret?.expiresAt && Date.now() >= this.cachedSecret.expiresAt) {
         this.cachedSecret = undefined;
       }
+      this.cacheExpiryTimer = undefined;
     }, ttlSeconds * 1000 + 100);
   }
 

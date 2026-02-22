@@ -157,6 +157,26 @@ export function activate(context: vscode.ExtensionContext): void {
     })
   );
 
+  // Defensive: if the extension is uninstalled/disabled while the host is still
+  // running, stop all in-flight work immediately.  Best-effort — onDidChange
+  // may not fire in every VS Code fork, but it's free to try.
+  const selfId = context.extension.id;
+  context.subscriptions.push(
+    vscode.extensions.onDidChange(() => {
+      try {
+        if (!vscode.extensions.getExtension(selfId)) {
+          clipboardMonitor?.stop();
+          if (pasteProviderDisposable) {
+            pasteProviderDisposable.dispose();
+            pasteProviderDisposable = undefined;
+          }
+        }
+      } catch {
+        // Never crash the extension host.
+      }
+    })
+  );
+
   // Wire up exposure store changes to refresh UI
   exposureStore.onDidChange(() => {
     treeProvider.refresh();

@@ -2,7 +2,7 @@
   "name": "secretshields",
   "displayName": "SecretShields — Secret Shield for AI Chat",
   "description": "Local-first clipboard secret masking. Prevents accidental secret leakage into AI chats, terminals, and pastebins.",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "publisher": "secretshields",
   "license": "MIT",
   "icon": "media/shield.png",

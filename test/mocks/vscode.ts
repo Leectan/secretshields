@@ -121,6 +121,11 @@ export class DocumentPasteEdit {
   }
 }
 
+export const extensions = {
+  getExtension: (_id: string) => undefined,
+  onDidChange: () => ({ dispose: () => {} }),
+};
+
 export const languages = {
   registerDocumentPasteEditProvider: (
     _selector: unknown,
