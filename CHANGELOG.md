@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.2] - 2026-02-22
+
+### Added
+- **Uninstall behavior documentation** in README ("After Disabling or Uninstalling" section), SECURITY.md, and landing page FAQ explaining why previously-masked clipboard contents remain masked by design.
+- **FAQ section** on the landing page covering uninstall behavior, chat input interception, and privacy model.
+
 ## [0.3.0] - 2026-02-22
 
 ### Added
