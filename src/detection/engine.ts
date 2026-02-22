@@ -53,6 +53,11 @@ export function detectSecrets(
         continue;
       }
 
+      // Run pattern-specific validation if defined
+      if (pattern.validate && !pattern.validate(raw, match)) {
+        continue;
+      }
+
       const masked = maskSecret(raw, pattern.prefixLen, pattern.suffixLen);
 
       results.push({

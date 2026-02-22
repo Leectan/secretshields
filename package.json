@@ -2,7 +2,7 @@
   "name": "secretshields",
   "displayName": "SecretShields — Secret Shield for AI Chat",
   "description": "Local-first clipboard secret masking. Prevents accidental secret leakage into AI chats, terminals, and pastebins.",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "publisher": "secretshields",
   "license": "MIT",
   "icon": "media/shield.png",
@@ -111,7 +111,12 @@
         "secretshields.detectors.stripeKeys": {
           "type": "boolean",
           "default": true,
-          "description": "Detect Stripe API keys."
+          "description": "Detect Stripe secret and restricted API keys (sk_*, rk_*)."
+        },
+        "secretshields.detectors.stripePublishableKeys": {
+          "type": "boolean",
+          "default": false,
+          "description": "Detect Stripe publishable keys (pk_*). Disabled by default because publishable keys are designed to be public."
         },
         "secretshields.detectors.openaiKeys": {
           "type": "boolean",
@@ -142,6 +147,116 @@
           "type": "boolean",
           "default": true,
           "description": "Detect JSON Web Tokens."
+        },
+        "secretshields.detectors.vercelTokens": {
+          "type": "boolean",
+          "default": true,
+          "description": "Detect Vercel API tokens and Blob tokens."
+        },
+        "secretshields.detectors.slackTokens": {
+          "type": "boolean",
+          "default": true,
+          "description": "Detect Slack bot/user/app tokens and webhook URLs."
+        },
+        "secretshields.detectors.sendgridKeys": {
+          "type": "boolean",
+          "default": true,
+          "description": "Detect SendGrid API keys."
+        },
+        "secretshields.detectors.shopifyTokens": {
+          "type": "boolean",
+          "default": true,
+          "description": "Detect Shopify access tokens."
+        },
+        "secretshields.detectors.twilioKeys": {
+          "type": "boolean",
+          "default": true,
+          "description": "Detect Twilio Account SIDs and API Key SIDs."
+        },
+        "secretshields.detectors.digitaloceanTokens": {
+          "type": "boolean",
+          "default": true,
+          "description": "Detect DigitalOcean personal access tokens."
+        },
+        "secretshields.detectors.npmTokens": {
+          "type": "boolean",
+          "default": true,
+          "description": "Detect npm access tokens."
+        },
+        "secretshields.detectors.pypiTokens": {
+          "type": "boolean",
+          "default": true,
+          "description": "Detect PyPI upload tokens."
+        },
+        "secretshields.detectors.hashicorpVaultTokens": {
+          "type": "boolean",
+          "default": true,
+          "description": "Detect HashiCorp Vault service and batch tokens."
+        },
+        "secretshields.detectors.dopplerTokens": {
+          "type": "boolean",
+          "default": true,
+          "description": "Detect Doppler personal, service, and CLI tokens."
+        },
+        "secretshields.detectors.linearKeys": {
+          "type": "boolean",
+          "default": true,
+          "description": "Detect Linear API keys."
+        },
+        "secretshields.detectors.grafanaTokens": {
+          "type": "boolean",
+          "default": true,
+          "description": "Detect Grafana service account tokens."
+        },
+        "secretshields.detectors.newrelicKeys": {
+          "type": "boolean",
+          "default": true,
+          "description": "Detect New Relic user and ingest API keys."
+        },
+        "secretshields.detectors.herokuTokens": {
+          "type": "boolean",
+          "default": true,
+          "description": "Detect Heroku OAuth tokens."
+        },
+        "secretshields.detectors.planetscaleTokens": {
+          "type": "boolean",
+          "default": true,
+          "description": "Detect PlanetScale service tokens and passwords."
+        },
+        "secretshields.detectors.dockerTokens": {
+          "type": "boolean",
+          "default": true,
+          "description": "Detect Docker Hub personal access tokens."
+        },
+        "secretshields.detectors.resendKeys": {
+          "type": "boolean",
+          "default": true,
+          "description": "Detect Resend API keys."
+        },
+        "secretshields.detectors.supabaseKeys": {
+          "type": "boolean",
+          "default": true,
+          "description": "Detect Supabase secret keys."
+        },
+        "secretshields.detectors.netlifyTokens": {
+          "type": "boolean",
+          "default": true,
+          "description": "Detect Netlify personal access tokens."
+        },
+        "secretshields.detectors.appwriteKeys": {
+          "type": "boolean",
+          "default": true,
+          "description": "Detect Appwrite standard API keys."
+        },
+        "secretshields.detectors.cloudflareKeys": {
+          "type": "boolean",
+          "default": true,
+          "description": "Detect Cloudflare Origin CA keys."
+        },
+        "secretshields.detectors.discordTokens": {
+          "type": "boolean",
+          "default": true,
+          "description": "Detect Discord webhook URLs."
         },
         "secretshields.countdownMinutes.critical": {
           "type": "number",

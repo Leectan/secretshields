@@ -19,7 +19,7 @@ suite("Clipboard Masking Command", function () {
   });
 
   test("maskClipboard masks a synthetic AWS key", async function () {
-    const syntheticKey = "AKIAIOSFODNN7TESTKEY1";
+    const syntheticKey = "AKIAIOSFODNN7TESTKEYA";
 
     // Write synthetic secret to clipboard
     try {

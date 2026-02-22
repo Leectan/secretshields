@@ -20,7 +20,7 @@ describe("processPasteText", () => {
     const result = processPasteText(MULTI_SECRET_TEXT);
     expect(result).not.toBeNull();
     expect(result!.detectionCount).toBeGreaterThanOrEqual(3);
-    expect(result!.maskedText).not.toContain("AKIAIOSFODNN7EXAMPL1");
+    expect(result!.maskedText).not.toContain("AKIAIOSFODNN7EXAMPLA");
   });
 
   it("returns null for empty text", () => {

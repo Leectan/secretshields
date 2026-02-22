@@ -30,9 +30,9 @@ describe("ClipboardMonitor", () => {
     const readText = vi
       .fn()
       .mockResolvedValueOnce(
-        "AKIAIOSFODNN7TSTKEY1\nghp_0123456789abcdefghijklmnopqrstuvwxyz"
+        "AKIAIOSFODNN7TSTKEYA\nghp_0123456789abcdefghijklmnopqrstuvwxyz"
       )
-      .mockResolvedValueOnce("AKIAIOSFODNN7TSTKEY1");
+      .mockResolvedValueOnce("AKIAIOSFODNN7TSTKEYA");
 
     const writeText = vi
       .fn()
@@ -72,7 +72,7 @@ describe("ClipboardMonitor", () => {
     monitor.stop();
 
     // Now resolve readText with a secret
-    readDeferred.resolve("AKIAIOSFODNN7TSTKEY1");
+    readDeferred.resolve("AKIAIOSFODNN7TSTKEYA");
     await pollPromise;
 
     // writeText should never have been called — poll bailed after generation check
@@ -86,7 +86,7 @@ describe("ClipboardMonitor", () => {
 
     (vscode.env.clipboard as any).readText = vi
       .fn()
-      .mockResolvedValue("AKIAIOSFODNN7TSTKEY1");
+      .mockResolvedValue("AKIAIOSFODNN7TSTKEYA");
     (vscode.env.clipboard as any).writeText = writeText;
 
     (vscode.workspace as any).getConfiguration = () => ({

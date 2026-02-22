@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { maskAllSecrets } from "../detection/engine";
 import type { DetectionResult } from "../detection/engine";
+import { PATTERNS } from "../detection/patterns";
 import { ExposureStore } from "../rotation/exposureStore";
 import { CountdownManager } from "../rotation/countdownManager";
 
@@ -302,17 +303,8 @@ export class ClipboardMonitor {
 
   private getEnabledPatterns(): Set<string> | undefined {
     const config = vscode.workspace.getConfiguration("secretshields");
-    const keys = [
-      "secretshields.detectors.awsKeys",
-      "secretshields.detectors.githubTokens",
-      "secretshields.detectors.stripeKeys",
-      "secretshields.detectors.openaiKeys",
-      "secretshields.detectors.anthropicKeys",
-      "secretshields.detectors.googleApiKeys",
-      "secretshields.detectors.databaseUrls",
-      "secretshields.detectors.sshPrivateKeys",
-      "secretshields.detectors.jwts",
-    ];
+    // Derive config keys dynamically from PATTERNS to avoid hardcoded key lists
+    const keys = [...new Set(PATTERNS.map((p) => p.configKey))];
 
     const enabled = new Set<string>();
     let allEnabled = true;

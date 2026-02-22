@@ -3,8 +3,8 @@ import { maskSecret } from "../../src/detection/masker";
 
 describe("maskSecret", () => {
   it("masks with prefix and suffix preserved", () => {
-    const result = maskSecret("AKIAIOSFODNN7EXAMPL1", 4, 4);
-    expect(result).toBe("AKIA████████████MPL1");
+    const result = maskSecret("AKIAIOSFODNN7EXAMPLA", 4, 4);
+    expect(result).toBe("AKIA████████████MPLA");
     expect(result.length).toBe(20);
   });
 

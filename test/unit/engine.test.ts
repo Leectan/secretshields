@@ -61,7 +61,7 @@ describe("maskAllSecrets", () => {
     const { masked, detections } = maskAllSecrets(MULTI_SECRET_TEXT);
 
     expect(detections.length).toBeGreaterThanOrEqual(3);
-    expect(masked).not.toContain("AKIAIOSFODNN7EXAMPL1");
+    expect(masked).not.toContain("AKIAIOSFODNN7EXAMPLA");
     expect(masked).toContain("█");
     // Providers that appear in context should still be readable
     expect(masked).toContain("AWS_ACCESS_KEY_ID=");
@@ -95,7 +95,7 @@ describe("performance", () => {
     // Generate a 10KB payload with some secrets sprinkled in
     const chunk = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. ";
     let payload = chunk.repeat(Math.ceil(10000 / chunk.length)).slice(0, 9500);
-    payload += `\nAKIAIOSFODNN7EXAMPL1\nghp_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghij\n`;
+    payload += `\nAKIAIOSFODNN7EXAMPLA\nghp_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghij\n`;
     payload += chunk.repeat(5);
 
     const start = performance.now();
