@@ -1,5 +1,10 @@
 # SecretShields — Secret Shield for AI Chat
 
+[![VS Code Marketplace](https://img.shields.io/visual-studio-marketplace/v/secretshields.secretshields?label=VS%20Code%20Marketplace&color=blue)](https://marketplace.visualstudio.com/items?itemName=secretshields.secretshields)
+[![OpenVSX](https://img.shields.io/open-vsx/v/secretshields/secretshields?label=OpenVSX%20(Cursor)&color=purple)](https://open-vsx.org/extension/secretshields/secretshields)
+[![CI](https://github.com/Leectan/secretshields/actions/workflows/ci.yml/badge.svg)](https://github.com/Leectan/secretshields/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+
 SecretShields is a local-first VS Code / Cursor extension that automatically masks secrets in your clipboard before you paste them anywhere — including AI chat windows, terminals, and pastebins.
 
 ## How It Works
@@ -116,6 +121,13 @@ This is a public beta. Please help improve SecretShields:
 - SecretShields masks your clipboard proactively. It **cannot** intercept paste events inside Cursor or Copilot chat input fields directly (VS Code extensions cannot inject into other extensions' webviews).
 - Editor paste masking is available for code editor panes only (TextDocuments), configurable via `secretshields.editorPasteMasking.mode`. It is optional and **not relied on** for core AI chat protection — clipboard-first masking remains the primary defense.
 - Rotation is manual — SecretShields opens the provider's rotation page but does not auto-rotate credentials.
+
+## After Disabling or Uninstalling
+
+- **Previously-masked clipboard contents remain masked.** SecretShields does not restore raw secrets when disabled or uninstalled — this is intentional. Restoring secrets on deactivation would be a security regression. If your clipboard contains masked text, simply copy any other text to overwrite it.
+- **Disable/uninstall may require a window reload** to fully stop active clipboard monitoring in the current session. VS Code's extension host may continue running until you reload the window or restart the IDE.
+- **Other open windows matter.** If you have multiple VS Code or Cursor windows open, any window with SecretShields still active can monitor the shared system clipboard.
+- **Cursor's own scrubber is independent.** Cursor may have its own built-in heuristic that blocks secrets from being sent to AI providers. This is separate from SecretShields and will continue regardless of whether SecretShields is installed.
 
 ## Installation
 

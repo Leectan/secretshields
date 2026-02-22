@@ -34,6 +34,16 @@ For security vulnerabilities, please open a private security advisory on the Git
 
 For non-security bugs (false positives, UI issues, etc.), open a regular GitHub issue.
 
+## Disable / Uninstall Behavior
+
+SecretShields **does not restore raw secrets** when disabled, deactivated, or uninstalled. This is a deliberate security decision:
+
+- The `deactivate()` function and the defensive `onDidChange` handler stop all clipboard monitoring immediately — no new masking occurs after shutdown.
+- Previously-masked clipboard contents remain masked at the OS level. The raw secret may no longer exist in memory (it is held only for the configurable restore TTL window, then discarded).
+- Writing raw secrets back to the clipboard on deactivation would create an exposure window after the user has explicitly chosen to remove the tool.
+
+If your clipboard contains masked text after uninstalling, simply copy any other text to overwrite it.
+
 ## Scope
 
 This policy covers the SecretShields extension code. It does not cover:

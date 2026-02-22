@@ -256,6 +256,27 @@
         </div>
     </section>
 
+    <!-- FAQ Section -->
+    <section class="py-20 border-t border-zinc-800/50">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-2xl font-bold text-center text-white mb-10">Frequently Asked Questions</h2>
+            <div class="space-y-6">
+                <div class="glass-panel p-6 rounded-xl border border-zinc-800">
+                    <h3 class="text-lg font-semibold text-white mb-2">Why does masking persist after I uninstall?</h3>
+                    <p class="text-zinc-400 text-sm leading-relaxed">SecretShields operates on the system clipboard. Once masked text is written, it becomes the clipboard's actual content at the OS level. Uninstalling the extension does not (and should not) restore raw secrets — that would be a security regression. Simply copy any other text to overwrite the clipboard.</p>
+                </div>
+                <div class="glass-panel p-6 rounded-xl border border-zinc-800">
+                    <h3 class="text-lg font-semibold text-white mb-2">Can SecretShields intercept paste in AI chat inputs?</h3>
+                    <p class="text-zinc-400 text-sm leading-relaxed">VS Code extensions run in a sandboxed Node.js process with no DOM access. SecretShields cannot intercept paste events inside chat panels (Cursor, Copilot, Cline). Instead, it masks the clipboard <em>before</em> you paste — so any paste target receives the masked version automatically.</p>
+                </div>
+                <div class="glass-panel p-6 rounded-xl border border-zinc-800">
+                    <h3 class="text-lg font-semibold text-white mb-2">Does SecretShields make any network calls?</h3>
+                    <p class="text-zinc-400 text-sm leading-relaxed">No. Detection, masking, and alerts are entirely local. No telemetry, no data leaves your machine, and no raw secrets are ever written to disk.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- CTA Section -->
     <section class="py-24 relative overflow-hidden">
         <div class="absolute inset-0 bg-primary-600/10"></div>
