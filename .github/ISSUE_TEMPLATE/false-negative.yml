@@ -1,0 +1,79 @@
+name: False Negative
+description: Report a secret that SecretShields failed to detect
+title: "[FN] "
+labels: ["false-negative", "detection"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Never paste real secrets.** Use only synthetic examples that match the format.
+
+  - type: input
+    id: secret-type
+    attributes:
+      label: Secret type / provider
+      description: What kind of secret was missed?
+      placeholder: "Slack webhook URL, Azure storage key, Twilio auth token"
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected detection
+      description: What should SecretShields have done?
+      placeholder: "Should have masked the entire token."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where did it leak?
+      options:
+        - Clipboard (was not auto-masked on copy)
+        - Editor paste widget (no masking option offered)
+        - Both
+    validations:
+      required: true
+
+  - type: textarea
+    id: synthetic-example
+    attributes:
+      label: Synthetic example
+      description: Provide a SYNTHETIC string that matches the format of the missed secret. Do NOT paste real credentials.
+      placeholder: "FAKE_EXAMPLE: my-provider-XXXXXXXXXXXXXXXXXXXX"
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: pattern-details
+    attributes:
+      label: Pattern details (if known)
+      description: Any regex or format info that could help.
+      placeholder: "Starts with xoxb-, 50+ chars, alphanumeric"
+
+  - type: input
+    id: version
+    attributes:
+      label: SecretShields version
+      placeholder: "0.3.2"
+    validations:
+      required: true
+
+  - type: input
+    id: ide
+    attributes:
+      label: IDE and version
+      placeholder: "VS Code 1.96 / Cursor 0.45"
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: "macOS 15.3 / Windows 11 / Ubuntu 24.04"
+    validations:
+      required: true

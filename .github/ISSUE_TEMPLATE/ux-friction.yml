@@ -1,0 +1,52 @@
+name: UX Friction
+description: Report a workflow disruption or suggest a UX improvement
+title: "[UX] "
+labels: ["ux", "feedback"]
+body:
+  - type: textarea
+    id: disruption
+    attributes:
+      label: What workflow got disrupted?
+      description: Describe what you were doing and how SecretShields interfered.
+      placeholder: "I was copying a code snippet and it got masked even though it wasn't a secret."
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should have happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested fix
+      description: Any ideas for improvement?
+      placeholder: "Add a quick-dismiss shortcut, don't mask inside markdown code blocks, etc."
+
+  - type: input
+    id: version
+    attributes:
+      label: SecretShields version
+      placeholder: "0.3.2"
+    validations:
+      required: true
+
+  - type: input
+    id: ide
+    attributes:
+      label: IDE and version
+      placeholder: "VS Code 1.96 / Cursor 0.45"
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: "macOS 15.3 / Windows 11 / Ubuntu 24.04"
+    validations:
+      required: true
