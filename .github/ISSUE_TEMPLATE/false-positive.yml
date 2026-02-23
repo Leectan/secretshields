@@ -1,0 +1,77 @@
+name: False Positive
+description: Report text that was incorrectly masked as a secret
+title: "[FP] "
+labels: ["false-positive", "detection"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Never paste real secrets.** Use only masked output or synthetic examples.
+
+  - type: textarea
+    id: what-masked
+    attributes:
+      label: What got masked?
+      description: Describe what SecretShields treated as a secret (e.g., "a Base64 config string", "a test API key from docs").
+      placeholder: A documentation example key from the AWS docs was masked...
+    validations:
+      required: true
+
+  - type: textarea
+    id: why-not-secret
+    attributes:
+      label: Why is it not a secret?
+      description: Explain why this string is safe.
+      placeholder: "It's a well-known example value from the provider's documentation."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where did masking occur?
+      options:
+        - Clipboard (auto-mask on copy)
+        - Editor paste widget
+        - Both
+    validations:
+      required: true
+
+  - type: textarea
+    id: masked-output
+    attributes:
+      label: Masked output
+      description: Paste the MASKED version SecretShields produced.
+      placeholder: "AKIA████████████████"
+      render: text
+
+  - type: textarea
+    id: synthetic-example
+    attributes:
+      label: Synthetic example
+      description: Provide a SYNTHETIC string that matches the same pattern. Do NOT paste real credentials.
+      render: text
+
+  - type: input
+    id: version
+    attributes:
+      label: SecretShields version
+      placeholder: "0.3.2"
+    validations:
+      required: true
+
+  - type: input
+    id: ide
+    attributes:
+      label: IDE and version
+      placeholder: "VS Code 1.96 / Cursor 0.45"
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: "macOS 15.3 / Windows 11 / Ubuntu 24.04"
+    validations:
+      required: true

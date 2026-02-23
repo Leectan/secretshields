@@ -5,6 +5,9 @@
 ### Added
 - **Uninstall behavior documentation** in README ("After Disabling or Uninstalling" section), SECURITY.md, and landing page FAQ explaining why previously-masked clipboard contents remain masked by design.
 - **FAQ section** on the landing page covering uninstall behavior, chat input interception, and privacy model.
+- **CONTRIBUTING.md** with dev setup, project structure, and step-by-step guide for adding new detectors.
+- **YAML issue forms** (False Positive, False Negative, UX Friction) with guided fields and required validation, replacing Markdown templates.
+- **Issue chooser config** linking to GitHub Discussions for Q&A.
 
 ## [0.3.0] - 2026-02-22
 
