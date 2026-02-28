@@ -1,0 +1,11 @@
+{
+  "setup-worktree-unix": [
+    "if [ -f \"$ROOT_WORKTREE_PATH/.env\" ] && [ ! -f .env ]; then cp \"$ROOT_WORKTREE_PATH/.env\" .env; fi",
+    "if [ -f package-lock.json ]; then npm ci; elif [ -f pnpm-lock.yaml ]; then pnpm install --frozen-lockfile; elif [ -f yarn.lock ]; then yarn install --frozen-lockfile; elif [ -f bun.lock ] || [ -f bun.lockb ]; then bun install; fi",
+    "if [ -f requirements.txt ]; then python -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt; fi"
+  ],
+  "setup-worktree-windows": [
+    "if exist %ROOT_WORKTREE_PATH%\\.env if not exist .env copy %ROOT_WORKTREE_PATH%\\.env .env",
+    "if exist package-lock.json npm ci"
+  ]
+}

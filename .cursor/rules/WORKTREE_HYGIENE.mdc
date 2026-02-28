@@ -1,0 +1,30 @@
+---
+description: Cursor Worktree Hygiene — source-of-truth rules for agents and users
+globs: ["**/*"]
+alwaysApply: true
+---
+
+# Cursor Worktree Hygiene
+
+## Source of Truth
+- The **repo root** (the folder containing `.git/`) is ALWAYS the canonical source of truth.
+- Cursor worktrees under `~/.cursor/worktrees/...` are **temporary, disposable workspaces**.
+- A file that exists ONLY in a Cursor worktree is **not real** until it has been Applied (or manually copied + committed) into the canonical repo root.
+
+## File Resolution Order
+When a file appears to be "missing" or "not found", agents MUST check in this order:
+1. **Repo root** — the canonical location (contains `.git/`)
+2. **`git worktree list`** paths — check all active worktrees (Cursor-managed and manual)
+3. If the file exists only in a worktree → treat it as "not yet applied" and bring it into the canonical repo via Cursor Apply or a controlled `cp` + `git add` + `git commit`
+
+Do NOT assume a file "doesn't exist" just because it's missing from the current working directory.
+
+## Cursor Worktree Rules
+- **Cursor-managed worktrees** (under `~/.cursor/worktrees/`): Use the "Apply" button in Cursor to merge changes back to the main branch.
+- **Manual git worktrees** (created by the user with `git worktree add`): Open each worktree in its own Cursor window and use **Local mode** (no Apply). OR switch to Cursor-managed worktrees for seamless Apply support.
+- **Never open a repo subfolder** in Cursor — always open the repo root. Opening a subfolder can break Apply and cause "wrong worktree" confusion.
+
+## Agent Behavior
+- When creating or modifying files, always verify you are operating in the canonical repo root, not a stale worktree.
+- After completing work in a worktree, ensure all changes are Applied or committed to the canonical branch before considering the task done.
+- Run `git worktree list` to see all active worktrees when debugging path issues.
