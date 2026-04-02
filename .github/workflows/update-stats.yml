@@ -14,20 +14,30 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Fetch VS Code Marketplace stats
+      - name: Fetch stats from both marketplaces
         run: |
-          RESPONSE=$(curl -sf -X POST \
+          # --- VS Code Marketplace ---
+          VSCE_RESPONSE=$(curl -sf -X POST \
             'https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery' \
             -H 'Content-Type: application/json' \
             -H 'Accept: application/json;api-version=7.1-preview.1' \
             -d '{"filters":[{"criteria":[{"filterType":7,"value":"secretshields.secretshields"}]}],"assetTypes":[],"flags":914}')
 
-          DOWNLOADS=$(echo "$RESPONSE" | jq -r '.results[0].extensions[0].statistics[] | select(.statisticName == "downloadCount") | .value | floor')
-          INSTALLS=$(echo "$RESPONSE" | jq -r '.results[0].extensions[0].statistics[] | select(.statisticName == "install") | .value | floor')
+          VSCE_DOWNLOADS=$(echo "$VSCE_RESPONSE" | jq -r '.results[0].extensions[0].statistics[] | select(.statisticName == "downloadCount") | .value | floor')
+          VSCE_INSTALLS=$(echo "$VSCE_RESPONSE" | jq -r '.results[0].extensions[0].statistics[] | select(.statisticName == "install") | .value | floor')
+          echo "VS Code Marketplace: $VSCE_DOWNLOADS downloads, $VSCE_INSTALLS installs"
+
+          # --- OpenVSX (Cursor / Cline) ---
+          OVSX_RESPONSE=$(curl -sf 'https://open-vsx.org/api/secretshields/secretshields')
+          OVSX_DOWNLOADS=$(echo "$OVSX_RESPONSE" | jq -r '.downloadCount // 0')
+          echo "OpenVSX: $OVSX_DOWNLOADS downloads"
+
+          # --- Combine totals ---
+          TOTAL_DOWNLOADS=$(( VSCE_DOWNLOADS + OVSX_DOWNLOADS ))
           UPDATED=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
-          echo "{\"downloads\":${DOWNLOADS},\"installs\":${INSTALLS},\"updated\":\"${UPDATED}\"}" > docs/stats.json
-          echo "Downloads: $DOWNLOADS | Installs: $INSTALLS"
+          echo "{\"downloads\":${TOTAL_DOWNLOADS},\"vsceDownloads\":${VSCE_DOWNLOADS},\"ovsxDownloads\":${OVSX_DOWNLOADS},\"vsceInstalls\":${VSCE_INSTALLS},\"updated\":\"${UPDATED}\"}" > docs/stats.json
+          echo "Total: $TOTAL_DOWNLOADS downloads"
 
       - name: Commit if changed
         run: |
