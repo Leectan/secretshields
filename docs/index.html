@@ -106,6 +106,7 @@
                     <span class="text-xl font-bold text-white tracking-tight">SecretShields</span>
                 </div>
                 <div class="flex items-center gap-6">
+                    <a href="#pricing" class="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Pricing</a>
                     <a href="https://github.com/Leectan/secretshields" class="text-sm font-medium text-zinc-400 hover:text-white transition-colors">GitHub</a>
                     <a href="https://marketplace.visualstudio.com/items?itemName=secretshields.secretshields" class="text-sm font-medium bg-primary-600 hover:bg-primary-500 text-white px-4 py-2 rounded-md transition-all shadow-[0_0_15px_rgba(14,165,233,0.3)]">Install Extension</a>
                 </div>
@@ -144,7 +145,13 @@
                             OpenVSX (Cursor / Cline)
                         </a>
                     </div>
-                    <p class="mt-4 text-sm text-zinc-500">Free forever. Zero telemetry. No network calls.</p>
+                    <div class="mt-4 flex items-center gap-4 text-sm text-zinc-500">
+                        <span>Free forever. Zero telemetry. No network calls.</span>
+                        <span id="download-badge" class="hidden items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-800/60 border border-zinc-700/50 text-zinc-400">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            <span id="download-count">--</span> downloads
+                        </span>
+                    </div>
                 </div>
 
                 <!-- Interactive Hero UI Mockup -->
@@ -288,6 +295,150 @@
         </div>
     </section>
 
+    <!-- Pricing Section -->
+    <section id="pricing" class="py-20 border-t border-zinc-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-4">
+                <h2 class="text-3xl font-bold text-white mb-4">Simple, honest pricing.</h2>
+                <p class="text-zinc-400 text-lg mb-2">The core protection engine is free forever. We will never paywall the safety promise.</p>
+                <p class="text-zinc-500 text-sm">Paid plans add management, policy, and compliance for teams — not more masking.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8 mt-12 max-w-5xl mx-auto">
+
+                <!-- Free Tier -->
+                <div class="glass-panel p-8 rounded-xl border border-zinc-800 flex flex-col">
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-white mb-1">Community</h3>
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-4xl font-bold text-white">$0</span>
+                            <span class="text-zinc-500 text-sm">forever</span>
+                        </div>
+                    </div>
+                    <p class="text-zinc-400 text-sm mb-6">For solo developers, students, and open source maintainers.</p>
+                    <ul class="space-y-3 text-sm text-zinc-400 mb-8 flex-1">
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            39 detectors across 30+ platforms
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Automatic clipboard masking
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Restore with TTL + rotation reminders
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Exposure log + per-detector toggles
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Editor paste masking
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            100% local, zero telemetry
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Community support via GitHub
+                        </li>
+                    </ul>
+                    <a href="https://marketplace.visualstudio.com/items?itemName=secretshields.secretshields" class="block text-center bg-white text-zinc-900 hover:bg-zinc-100 font-semibold px-6 py-3 rounded-lg transition-all">
+                        Install Free
+                    </a>
+                </div>
+
+                <!-- Team Tier -->
+                <div class="relative glass-panel p-8 rounded-xl border border-primary-500/40 flex flex-col ring-1 ring-primary-500/20">
+                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-primary-500 text-white text-xs font-semibold rounded-full">Coming Soon</div>
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-white mb-1">Team</h3>
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-4xl font-bold text-white">$12</span>
+                            <span class="text-zinc-500 text-sm">/ user / month</span>
+                        </div>
+                    </div>
+                    <p class="text-zinc-400 text-sm mb-6">For dev teams that need shared policy and visibility.</p>
+                    <ul class="space-y-3 text-sm text-zinc-400 mb-8 flex-1">
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-primary-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Everything in Community
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-primary-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Centralized team policy
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-primary-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Shared detector settings and allowlists
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-primary-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Metadata-only exposure dashboard
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-primary-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Slack / Teams / Jira integrations
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-primary-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Priority support
+                        </li>
+                    </ul>
+                    <a href="https://github.com/Leectan/secretshields/discussions" class="block text-center bg-primary-600 hover:bg-primary-500 text-white font-semibold px-6 py-3 rounded-lg transition-all shadow-[0_0_15px_rgba(14,165,233,0.3)]">
+                        Join Waitlist
+                    </a>
+                </div>
+
+                <!-- Enterprise Tier -->
+                <div class="glass-panel p-8 rounded-xl border border-zinc-800 flex flex-col">
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-white mb-1">Enterprise</h3>
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-4xl font-bold text-white">Custom</span>
+                        </div>
+                    </div>
+                    <p class="text-zinc-400 text-sm mb-6">For organizations that need governance, compliance, and deployment flexibility.</p>
+                    <ul class="space-y-3 text-sm text-zinc-400 mb-8 flex-1">
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-amber-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Everything in Team
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-amber-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            SSO / SCIM / RBAC
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-amber-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Audit log export + SIEM integration
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-amber-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Self-hosted / air-gapped deployment
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-amber-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Compliance reporting + DPA
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-amber-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Dedicated support + onboarding
+                        </li>
+                    </ul>
+                    <a href="https://github.com/Leectan/secretshields/discussions" class="block text-center glass-panel hover:bg-zinc-800/80 text-white border border-zinc-700 font-semibold px-6 py-3 rounded-lg transition-all">
+                        Contact Us
+                    </a>
+                </div>
+
+            </div>
+
+            <p class="text-center text-zinc-600 text-xs mt-8">All tiers keep secrets local. Paid plans transmit metadata only (masked previews, event timestamps) — never raw credentials.</p>
+        </div>
+    </section>
+
     <!-- CTA Section -->
     <section class="py-24 relative overflow-hidden">
         <div class="absolute inset-0 bg-primary-600/10"></div>
@@ -320,5 +471,19 @@
         </div>
     </footer>
 
+    <script>
+        fetch('stats.json')
+            .then(r => r.json())
+            .then(data => {
+                if (data.downloads > 0) {
+                    const badge = document.getElementById('download-badge');
+                    const count = document.getElementById('download-count');
+                    count.textContent = data.downloads.toLocaleString();
+                    badge.classList.remove('hidden');
+                    badge.classList.add('inline-flex');
+                }
+            })
+            .catch(() => {});
+    </script>
 </body>
 </html>

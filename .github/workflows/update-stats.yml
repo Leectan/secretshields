@@ -1,0 +1,39 @@
+name: Update Marketplace Stats
+
+on:
+  schedule:
+    - cron: '15 6 * * *' # Daily at 06:15 UTC
+  workflow_dispatch: # Allow manual trigger
+
+permissions:
+  contents: write
+
+jobs:
+  update-stats:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch VS Code Marketplace stats
+        run: |
+          RESPONSE=$(curl -sf -X POST \
+            'https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery' \
+            -H 'Content-Type: application/json' \
+            -H 'Accept: application/json;api-version=7.1-preview.1' \
+            -d '{"filters":[{"criteria":[{"filterType":7,"value":"secretshields.secretshields"}]}],"assetTypes":[],"flags":914}')
+
+          DOWNLOADS=$(echo "$RESPONSE" | jq -r '.results[0].extensions[0].statistics[] | select(.statisticName == "downloadCount") | .value | floor')
+          INSTALLS=$(echo "$RESPONSE" | jq -r '.results[0].extensions[0].statistics[] | select(.statisticName == "install") | .value | floor')
+          UPDATED=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+          echo "{\"downloads\":${DOWNLOADS},\"installs\":${INSTALLS},\"updated\":\"${UPDATED}\"}" > docs/stats.json
+          echo "Downloads: $DOWNLOADS | Installs: $INSTALLS"
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/stats.json
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "chore: update marketplace stats [skip ci]"
+          git push
