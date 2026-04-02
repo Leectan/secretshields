@@ -135,7 +135,7 @@
                     <p class="text-lg text-zinc-400 mb-8 leading-relaxed">
                         SecretShields masks sensitive data by default. When you intentionally paste a secret, we track the exposure and remind you to rotate it later.
                     </p>
-                    <div class="flex flex-col sm:flex-row gap-4">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                         <a href="https://marketplace.visualstudio.com/items?itemName=secretshields.secretshields" class="flex items-center justify-center gap-2 bg-white text-zinc-900 hover:bg-zinc-100 font-semibold px-6 py-3 rounded-lg transition-all">
                             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M23.15 2.587L18.21.21a1.494 1.494 0 0 0-1.705.29l-9.46 8.63-4.12-3.128a.999.999 0 0 0-1.276.057L.327 7.261A1 1 0 0 0 .326 8.74L8.42 15.45l-5.18 4.66a1 1 0 0 0 .67 1.74h2.07a1 1 0 0 0 .73-.3l4.63-4.94 2.58 2.09a1 1 0 0 0 1.25.07l1.9-1.39a.999.999 0 0 0 .33-.67l2.84-12.92a1.5 1.5 0 0 0-1.12-1.79zm-5.07 11.23l-3.32-2.61L18.8 4.29l-3.32-2.61 5.07 1.83-2.47 10.3z"/></svg>
                             VS Code Marketplace
@@ -144,17 +144,15 @@
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                             OpenVSX (Cursor / Cline)
                         </a>
-                    </div>
-                    <div class="mt-5 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
-                        <div class="flex items-center gap-4 text-base text-zinc-300 font-medium">
-                            <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Free forever</span>
-                            <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Zero telemetry</span>
-                            <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> No network calls</span>
-                        </div>
-                        <span id="download-badge" class="hidden items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary-500/15 to-emerald-500/15 border border-primary-500/30 text-sm">
+                        <span id="download-badge" class="hidden items-center gap-2 px-4 py-3 rounded-lg bg-gradient-to-r from-primary-500/15 to-emerald-500/15 border border-primary-500/30 text-sm">
                             <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                            <span><span id="download-count" class="font-bold text-white">--</span><span class="text-zinc-400"> Downloads on Extension Marketplace</span></span>
+                            <span><span id="download-count" class="font-bold text-white">--</span><span class="text-zinc-400"> Downloads</span></span>
                         </span>
+                    </div>
+                    <div class="mt-5 flex items-center gap-5 text-base text-zinc-300 font-medium">
+                        <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Free forever</span>
+                        <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Zero telemetry</span>
+                        <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> No network calls</span>
                     </div>
                 </div>
 
