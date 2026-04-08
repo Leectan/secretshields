@@ -17,7 +17,7 @@ SecretShields is a local-first VS Code / Cursor extension that automatically mas
 ## Features
 
 - **Automatic clipboard masking** — secrets are detected and masked within ~1 second of copying (polling-based, configurable)
-- **39 detection patterns across 30+ platforms** — AWS, GitHub, Stripe, OpenAI, Anthropic, Google, Vercel, Slack, SendGrid, Shopify, Twilio, DigitalOcean, npm, PyPI, HashiCorp Vault, Doppler, Linear, Grafana, New Relic, Heroku, PlanetScale, Docker Hub, Resend, Supabase, Netlify, Appwrite, Cloudflare, Discord, database URLs, SSH keys, JWTs, and more
+- **38 detection patterns across 30+ platforms** — AWS, GitHub, Stripe, OpenAI, Anthropic, Google, Vercel, Slack, SendGrid, Shopify, Twilio, DigitalOcean, npm, PyPI, HashiCorp Vault, Doppler, Linear, Grafana, New Relic, Heroku, PlanetScale, Docker Hub, Resend, Supabase, Netlify, Appwrite, Cloudflare, Discord, database URLs, SSH keys, JWTs, and more
 - **Low false-positive design** — allowlist for known example values, Shannon entropy filtering, structural JWT validation, placeholder password detection for database URLs, template variable filtering, and per-pattern validation hooks
 - **Per-detector toggles** — enable or disable detection for each platform individually via settings
 - **Restore with TTL** — deliberately restore a masked secret for a short window (configurable, default 60s)
@@ -83,7 +83,7 @@ SecretShields is designed with privacy as a core feature:
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| `secretshields.enabled` | `true` | Enable/disable clipboard monitoring |
+| `secretshields.enabled` | `true` | Master switch for clipboard monitoring and editor paste masking |
 | `secretshields.autoMask` | `true` | Automatically mask detected secrets |
 | `secretshields.restoreTTLSeconds` | `60` | Seconds to allow restoring original secret |
 | `secretshields.pollIntervalMs` | `1000` | Clipboard polling interval (ms) |
@@ -102,6 +102,7 @@ In addition to clipboard masking, SecretShields can intercept paste operations i
 - In `offer` mode (default): normal paste remains the default; masked paste is selectable from the paste widget
 - In `auto` mode: SecretShields attempts to make masked paste the default (best-effort, depends on other paste providers)
 - In `off` mode: SecretShields does not participate in editor paste at all
+- If `secretshields.enabled` is `false`, editor paste masking is disabled regardless of the mode setting
 
 Configure via `secretshields.editorPasteMasking.mode` in settings.
 
@@ -113,7 +114,7 @@ This is a public beta. Please help improve SecretShields:
 
 - **False positives** (non-secrets getting masked): Open an issue with the masked text pattern (never include real secrets). We'll add it to the allowlist.
 - **False negatives** (real secrets not detected): Open an issue describing the secret format (e.g., "Acme Corp API keys start with `acme_`"). We'll add a detection pattern.
-- **Temporarily disable**: Set `secretshields.enabled` to `false` in VS Code settings, or click "Disable SecretShields" in the masking notification.
+- **Temporarily disable**: Set `secretshields.enabled` to `false` in VS Code settings, or click "Disable SecretShields" in the masking notification. This disables both clipboard monitoring and editor paste masking until you turn it back on.
 - Clipboard masking is **polling-based** — detection occurs within the configured `pollIntervalMs` (default 1000ms), not instantly on copy.
 
 ## Limitations (MVP)

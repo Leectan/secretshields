@@ -60,7 +60,7 @@
         "secretshields.enabled": {
           "type": "boolean",
           "default": true,
-          "description": "Enable or disable SecretShields clipboard monitoring."
+          "description": "Enable or disable all SecretShields protection, including clipboard monitoring and editor paste masking."
         },
         "secretshields.autoMask": {
           "type": "boolean",
@@ -286,7 +286,7 @@
             "Show 'Paste with SecretShields masking' as an alternative in the paste widget. Normal paste remains default.",
             "Attempt to make masked paste the default option. Ordering is best-effort and depends on other providers."
           ],
-          "description": "Controls editor paste masking behavior. 'offer' shows a masked paste option in the paste widget; 'auto' tries to make it default; 'off' disables it."
+          "description": "Controls editor paste masking behavior while SecretShields is enabled. 'offer' shows a masked paste option in the paste widget; 'auto' tries to make it default; 'off' disables editor paste masking."
         }
       }
     },

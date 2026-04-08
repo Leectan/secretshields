@@ -8,6 +8,19 @@ const SECRETSHIELDS_PASTE_KIND = vscode.DocumentDropOrPasteEditKind.Text.append(
 );
 
 /**
+ * Master switch for editor paste masking.
+ * `secretshields.enabled=false` disables paste masking even if the paste mode
+ * remains configured to "offer" or "auto".
+ */
+export function isEditorPasteMaskingEnabled(): boolean {
+  const config = vscode.workspace.getConfiguration("secretshields");
+  return (
+    config.get<boolean>("enabled", true) &&
+    config.get<string>("editorPasteMasking.mode", "offer") !== "off"
+  );
+}
+
+/**
  * Compute which detector patterns are enabled from `secretshields.detectors.*`
  * settings. Returns `undefined` when all detectors are on (no filter needed).
  */
@@ -60,6 +73,10 @@ class SecretShieldsPasteProvider
     _context: vscode.DocumentPasteEditContext,
     token: vscode.CancellationToken
   ): Promise<vscode.DocumentPasteEdit[] | undefined> {
+    if (!isEditorPasteMaskingEnabled()) {
+      return undefined;
+    }
+
     const item = dataTransfer.get("text/plain");
     if (!item) {
       return undefined;

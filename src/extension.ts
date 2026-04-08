@@ -1,6 +1,9 @@
 import * as vscode from "vscode";
 import { ClipboardMonitor } from "./interception/clipboardMonitor";
-import { registerPasteProvider } from "./interception/documentPasteProvider";
+import {
+  isEditorPasteMaskingEnabled,
+  registerPasteProvider,
+} from "./interception/documentPasteProvider";
 import type { DetectionResult } from "./detection/engine";
 import { ExposureStore } from "./rotation/exposureStore";
 import { CountdownManager } from "./rotation/countdownManager";
@@ -48,10 +51,35 @@ export function activate(context: vscode.ExtensionContext): void {
     countdownManager,
     signalMaskEvent
   );
+  countdownManager.resumePendingCountdowns();
 
   const tree = vscode.window.createTreeView("secretshields.exposureLog", {
     treeDataProvider: treeProvider,
   });
+
+  const syncProtectionState = (): void => {
+    const config = vscode.workspace.getConfiguration("secretshields");
+    const enabled = config.get<boolean>("enabled", true);
+
+    if (enabled) {
+      clipboardMonitor?.start();
+    } else {
+      clipboardMonitor?.stop();
+    }
+
+    if (isEditorPasteMaskingEnabled()) {
+      if (!pasteProviderDisposable) {
+        pasteProviderDisposable = registerPasteProvider();
+        context.subscriptions.push(pasteProviderDisposable);
+      }
+      return;
+    }
+
+    if (pasteProviderDisposable) {
+      pasteProviderDisposable.dispose();
+      pasteProviderDisposable = undefined;
+    }
+  };
 
   context.subscriptions.push(
     tree,
@@ -77,6 +105,7 @@ export function activate(context: vscode.ExtensionContext): void {
         "Clear"
       );
       if (confirm === "Clear") {
+        countdownManager.cancelAllCountdowns();
         exposureStore.clearAll();
         treeProvider.refresh();
         vscode.window.showInformationMessage("Exposure log cleared.");
@@ -110,49 +139,16 @@ export function activate(context: vscode.ExtensionContext): void {
     })
   );
 
-  // Start clipboard monitoring if enabled
-  const config = vscode.workspace.getConfiguration("secretshields");
-  if (config.get<boolean>("enabled", true)) {
-    clipboardMonitor.start();
-  }
-
-  // Register editor paste provider if mode is not "off"
-  const pasteMode = config.get<string>("editorPasteMasking.mode", "offer");
-  if (pasteMode !== "off") {
-    pasteProviderDisposable = registerPasteProvider();
-    context.subscriptions.push(pasteProviderDisposable);
-  }
+  syncProtectionState();
 
   // Listen for config changes
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration("secretshields.enabled")) {
-        const enabled = vscode.workspace
-          .getConfiguration("secretshields")
-          .get<boolean>("enabled", true);
-        if (enabled) {
-          clipboardMonitor?.start();
-        } else {
-          clipboardMonitor?.stop();
-        }
-      }
-
-      if (e.affectsConfiguration("secretshields.editorPasteMasking.mode")) {
-        const mode = vscode.workspace
-          .getConfiguration("secretshields")
-          .get<string>("editorPasteMasking.mode", "offer");
-
-        // Dispose existing provider
-        if (pasteProviderDisposable) {
-          pasteProviderDisposable.dispose();
-          pasteProviderDisposable = undefined;
-        }
-
-        // Re-register if not "off"
-        if (mode !== "off") {
-          pasteProviderDisposable = registerPasteProvider();
-          context.subscriptions.push(pasteProviderDisposable);
-        }
+      if (
+        e.affectsConfiguration("secretshields.enabled") ||
+        e.affectsConfiguration("secretshields.editorPasteMasking.mode")
+      ) {
+        syncProtectionState();
       }
     })
   );
@@ -178,10 +174,12 @@ export function activate(context: vscode.ExtensionContext): void {
   );
 
   // Wire up exposure store changes to refresh UI
-  exposureStore.onDidChange(() => {
-    treeProvider.refresh();
-    statusBar.update();
-  });
+  context.subscriptions.push(
+    exposureStore.onDidChange(() => {
+      treeProvider.refresh();
+      statusBar.update();
+    })
+  );
 }
 
 export function deactivate(): void {

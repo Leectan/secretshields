@@ -4,11 +4,11 @@ Thanks for your interest in contributing! This guide will get you up and running
 
 ## Reporting Issues
 
-We have issue templates for the most common cases:
+We have issue forms for the most common cases:
 
-- **[False Positive](https://github.com/Leectan/secretshields/issues/new?template=false-positive.md)** — text was masked but shouldn't have been
-- **[False Negative](https://github.com/Leectan/secretshields/issues/new?template=false-negative.md)** — a real secret was not detected
-- **[UX Friction](https://github.com/Leectan/secretshields/issues/new?template=ux-friction.md)** — workflow disruption or improvement suggestion
+- **[False Positive](https://github.com/Leectan/secretshields/issues/new?template=false-positive.yml)** — text was masked but shouldn't have been
+- **[False Negative](https://github.com/Leectan/secretshields/issues/new?template=false-negative.yml)** — a real secret was not detected
+- **[UX Friction](https://github.com/Leectan/secretshields/issues/new?template=ux-friction.yml)** — workflow disruption or improvement suggestion
 
 **Never paste real secrets in issues.** Use synthetic examples that match the format.
 
@@ -100,7 +100,7 @@ If relevant, add false positive examples too — strings that look similar but s
 npm test
 ```
 
-All 108+ tests must pass. The CI pipeline runs the same suite on every PR.
+All tests must pass. The CI pipeline runs the same suite on every PR.
 
 ## False Positive Reduction
 

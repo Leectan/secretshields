@@ -32,8 +32,8 @@ Execute each step in order. Total time: ~15 minutes.
 
 ## 5. Enable/Disable (1 min)
 
-- [ ] **Disable via notification**: Copy a secret, click "Disable SecretShields" in the notification. Copy another secret — no masking should occur.
-- [ ] **Re-enable via settings**: Set `secretshields.enabled` to `true` in VS Code settings. Copy a secret — masking should resume.
+- [ ] **Disable via notification**: Copy a secret, click "Disable SecretShields" in the notification. Copy another secret and paste into a code editor — no clipboard masking should occur and no SecretShields paste option should appear.
+- [ ] **Re-enable via settings**: Set `secretshields.enabled` to `true` in VS Code settings. Copy a secret — masking should resume and the editor paste option should return.
 
 ## 6. Editor Paste Masking (2 min)
 

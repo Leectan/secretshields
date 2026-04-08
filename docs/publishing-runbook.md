@@ -52,7 +52,7 @@ npx vsce ls --no-dependencies
 ```
 
 Ensure:
-- All unit tests pass (62+)
+- All unit tests pass
 - Integration tests pass (activation + command registration; clipboard test may skip in headless environments)
 - Lint is clean
 - VSIX packages without errors

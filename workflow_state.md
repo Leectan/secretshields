@@ -1,19 +1,29 @@
 # Workflow State
 
 ## State
-- Phase: READY_FOR_IMPLEMENTATION
-- Status: PLAN_READY
-- CurrentTask: SecretShields Cycle 9 — Land Cycle 8 + verify CI gate
-- CycleCount: 9
-- LastUpdated: 2026-02-19T00:20
+- Phase: IDLE
+- Status: ALL_WORK_COMPLETE
+- CurrentTask: Historical archive through Cycle 10; current repository state has advanced beyond this file
+- CycleCount: 10
+- LastUpdated: 2026-04-07T18:05
+- Note: The plans and completion reports below are preserved as historical archive only. Current behavior and release state should be taken from `CHANGELOG.md` and the working tree.
 
 ## Plan
 <!-- GPT 5.2 writes numbered implementation tasks here -->
+### Implementation Plan: SecretShields Cycle 10 (Cancel In-Flight Work on Disable/Deactivate)
+**Objective**: Fix user-perceived bug where masking appears to continue after disable/uninstall. Add cancellation mechanism to clipboard monitor, defensive onDidChange handler, tests, and ship 0.2.4.
+**Complexity**: MEDIUM
+
+- [x] Task 49: Add cancellation mechanism to ClipboardMonitor
+- [x] Task 50: Add defensive onDidChange handler in extension.ts
+- [x] Task 51: Add deterministic cancellation tests
+- [x] Task 52: Ship 0.2.4 (bump version, CHANGELOG entry, verify)
+
 ### Implementation Plan: SecretShields Cycle 9 (Land Cycle 8 + Verify CI Gate)
 **Objective**: Commit and push Cycle 8 (integration test harness) to GitHub, then verify via GitHub Actions output that the new unit+integration gates are actually running on CI and in the publish workflow.
 **Complexity**: LOW
 
-- [ ] Task 45: Commit Cycle 8 changes and push to `main`
+- [x] Task 45: Commit Cycle 8 changes and push to `main`
  - File: /Users/leetan/Downloads/lt_code_repos/secretshields/*
  - Action: MODIFY
  - Details:
@@ -34,7 +44,7 @@
    - GitHub `main` HEAD includes the Cycle 8 commit.
    - `workflow_state.md` on GitHub shows CycleCount 8 completed and Cycle 9 ready (or Cycle 8 completed if you commit that exact state).
 
-- [ ] Task 46: Verify CI run output proves the gate is active (GitHub Actions)
+- [x] Task 46: Verify CI run output proves the gate is active (GitHub Actions)
  - File: /Users/leetan/Downloads/lt_code_repos/secretshields/.github/workflows/ci.yml
  - Action: VERIFY
  - Details:
@@ -50,7 +60,7 @@
    - Latest `CI` run on `main` is green.
    - Run logs clearly show both unit + integration steps executed (Node 20).
 
-- [ ] Task 47: Verify publish workflow is using the new scripts (without publishing)
+- [x] Task 47: Verify publish workflow is using the new scripts (without publishing)
  - File: /Users/leetan/Downloads/lt_code_repos/secretshields/.github/workflows/publish.yml
  - Action: VERIFY
  - Details:
@@ -62,7 +72,7 @@
  - Acceptance:
    - `publish.yml` on GitHub reflects the updated gate steps.
 
-- [ ] Task 48: Summarize remaining pre-publish checklist (no changes)
+- [x] Task 48: Summarize remaining pre-publish checklist (no changes)
  - File: /Users/leetan/Downloads/lt_code_repos/secretshields/docs/publishing-runbook.md
  - Action: VERIFY
  - Details:
@@ -945,9 +955,93 @@
 - [2026-02-18 T42] Task 42 complete: Created test/integration/activation.test.js (3 tests: extension present, activates, all 5 commands registered) and clipboard-mask.test.js (1 test: masks synthetic AWS key with graceful skip if clipboard write not functional in test host). Removed old placeholder extension.test.ts. Added .vscode-test.mjs to .vscodeignore. Results: 3 passing, 1 pending (skipped), exit code 0.
 - [2026-02-18 T43] Task 43 complete: Updated ci.yml: split "Run tests" into "Run unit tests" + "Run integration tests" (Node 20 only, via xvfb-run). Updated publish.yml: replaced single "Run tests" with unit + integration steps (via xvfb-run). Both block on test failures before packaging/publishing.
 - [2026-02-18 T44] Task 44 complete: Updated publishing-runbook.md: pre-release checks now use `npm run test:all`, updated test counts, added note that integration tests don't cover clipboard UX or paste widget — manual beta checklist still required. Added explanation to step 5.
+- [2026-02-19 T45] Task 45 complete: Staged 11 files (8 modified, 2 new, 1 deleted). Created commit d9fa399 "test: add VS Code integration harness and CI gate". Pushed to origin/main. Working tree clean.
+- [2026-02-19 T46] Task 46 complete: CI run #22207204070 is green. Node 18: unit tests pass, integration skipped (correct). Node 20: unit tests pass, integration tests 3 passing + 1 pending (clipboard skip), VSIX packages. Exit code 0.
+- [2026-02-19 T47] Task 47 complete: Verified publish.yml on GitHub includes test:unit + xvfb-run test:integration before vsce package/publish. No v* tag created.
+- [2026-02-19 T48] Task 48 complete: Pre-publish blockers confirmed: (1) manual smoke run of public-beta-checklist.md in VS Code + Cursor, (2) configure VSCE_PAT + OVSX_PAT in GitHub secrets, (3) git tag v0.2.0 && git push origin v0.2.0.
+- [2026-02-21 T49] Task 49 complete: Added monotonic generation counter to ClipboardMonitor. start()/stop() increment generation. poll() captures generation at entry and re-checks after every await (readText, writeText, showWarningMessage); bails if generation changed or running===false. stop() now also clears cachedSecret, resets isMasking, and clears cacheExpiryTimer. Fixed existing clipboardMonitor test to set running=true before calling poll(). 63 tests pass.
+- [2026-02-21 T50] Task 50 complete: Added vscode.extensions.onDidChange handler in extension.ts. On extension registry change, checks if own extension (selfId = context.extension.id) is gone; if so, stops clipboard monitor and disposes paste provider. Wrapped in try/catch to never crash extension host. Added extensions mock to test/mocks/vscode.ts. 63 tests pass.
+- [2026-02-21 T51] Task 51 complete: Added 3 deterministic cancellation tests to clipboardMonitor.test.ts using deferred promises: (1) stop() while awaiting readText prevents writeText, (2) stop() while awaiting showWarningMessage ignores "Disable" choice (no config.update), (3) stop() clears cachedSecret and resets isMasking. Also added beforeEach to reset mocks. 66 tests pass.
+- [2026-02-21 T52] Task 52 complete: Bumped version 0.2.3→0.2.4 in package.json. Added CHANGELOG 0.2.4 entry (cancel in-flight masking on disable/deactivate, defensive onDidChange handler, clipboard afterglow note). Full verification: lint clean, 66 tests pass, build 19.36KB, VSIX 46.3KB.
 
 ## CompletionReport
 <!-- Claude Code writes the completion summary here after finishing all tasks -->
+### Completion Report — Cycle 10: Cancel In-Flight Work on Disable/Deactivate
+
+**All 4 tasks (49–52) completed successfully.**
+
+#### Problem Solved
+Users perceived that masking continued after disabling/uninstalling SecretShields. Two root causes:
+1. **Clipboard afterglow**: Already-masked bytes remain in the OS clipboard — this is by design (SecretShields never restores raw secrets on shutdown).
+2. **In-flight async work**: `poll()` could still be awaiting clipboard reads, writes, or toast notifications when `stop()` was called. Pending async work would complete and take effect after the monitor was logically stopped.
+
+#### Actions Taken
+1. **Cancellation mechanism (Task 49)**: Added monotonic `generation` counter to `ClipboardMonitor`. Both `start()` and `stop()` increment the counter. `poll()` captures `gen` at entry and re-checks `gen !== this.generation || !this.running` after every `await` point (readText, writeText, showWarningMessage). If the check fails, poll returns immediately with no side effects. `stop()` now also clears `cachedSecret`, resets `isMasking`, and clears `cacheExpiryTimer`.
+
+2. **Defensive onDidChange handler (Task 50)**: Added `vscode.extensions.onDidChange` listener in `extension.ts` that checks if the extension is still in the registry via `vscode.extensions.getExtension(selfId)`. If gone (uninstalled/disabled mid-session), immediately stops clipboard monitor and disposes paste provider. Wrapped in try/catch to never crash the extension host.
+
+3. **Deterministic cancellation tests (Task 51)**: Added 3 tests using deferred promise pattern for precise async control:
+   - `stop()` while `readText` is pending → `writeText` never called
+   - `stop()` while toast is pending → "Disable SecretShields" choice ignored (no `config.update`)
+   - `stop()` clears `cachedSecret` and resets `isMasking` synchronously
+   Also added `beforeEach` to reset all vscode mocks between tests.
+
+4. **Shipped v0.2.4 (Task 52)**: Version bump, CHANGELOG entry, full verification pass.
+
+#### Files Modified (4 files)
+- `src/interception/clipboardMonitor.ts` — generation counter, enhanced stop(), gen checks in poll()
+- `src/extension.ts` — onDidChange handler for uninstall/disable detection
+- `test/unit/clipboardMonitor.test.ts` — 4 tests (1 fixed existing + 3 new cancellation tests), beforeEach, deferred helper
+- `test/mocks/vscode.ts` — added `extensions` mock
+
+#### Files Unchanged (2 files, metadata only)
+- `package.json` — version 0.2.3→0.2.4
+- `CHANGELOG.md` — added 0.2.4 entry
+
+#### Verification
+| Check | Result |
+|-------|--------|
+| `npm run lint` | Clean (no warnings) |
+| `npm test` | 66 tests pass |
+| `npm run build` | dist/extension.js 19.36 KB |
+| `npx vsce package` | secretshields-0.2.4.vsix 46.3 KB |
+
+#### Deviations from Plan
+- None. All 4 tasks executed as specified.
+
+#### Next Steps (Cycle 11)
+- Commit and push Cycle 10 changes to `main`
+- Verify CI green
+- Tag `v0.2.4` and push to trigger publish workflow (requires VSCE_PAT + OVSX_PAT configured)
+
+---
+
+### Completion Report — Cycle 9: Land Cycle 8 + Verify CI Gate
+
+**All 4 tasks (45–48) completed successfully.**
+
+#### Actions Taken
+1. **Committed and pushed (Task 45)**: Created commit `d9fa399` with 11 files (8 modified, 2 new, 1 deleted). Pushed to `origin/main`. `.vscode-test/` confirmed gitignored.
+2. **CI verification (Task 46)**: CI run #22207204070 completed green.
+   - Node 18: unit tests pass, integration + VSIX skipped (correct, Node 20 only)
+   - Node 20: unit tests pass, integration tests 3 passing + 1 pending (clipboard skip), VSIX packages successfully
+3. **Publish workflow verification (Task 47)**: `publish.yml` on GitHub confirmed to include `test:unit` + `xvfb-run test:integration` before `vsce package` and publish steps. No `v*` tag created.
+4. **Pre-publish checklist (Task 48)**: Three remaining blockers confirmed:
+   - [ ] Manual smoke run: `docs/public-beta-checklist.md` in VS Code + Cursor
+   - [ ] Configure GitHub secrets: `VSCE_PAT` + `OVSX_PAT`
+   - [ ] Tag and push: `git tag v0.2.0 && git push origin v0.2.0`
+
+#### CI Run Summary
+| Job | Unit Tests | Integration Tests | VSIX Package | Status |
+|-----|-----------|-------------------|--------------|--------|
+| Node 18 | 62 pass | skipped | skipped | Green |
+| Node 20 | 62 pass | 3 pass, 1 pending | success | Green |
+
+#### Deviations from Plan
+- None. All 4 tasks executed as specified.
+
+---
+
 ### Completion Report — Cycle 8: Integration Test Harness + Release Gate
 
 **All 5 tasks (40–44) completed successfully.**

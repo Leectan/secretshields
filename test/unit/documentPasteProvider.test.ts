@@ -1,8 +1,19 @@
-import { describe, it, expect } from "vitest";
-import { processPasteText } from "../../src/interception/documentPasteProvider";
+import { beforeEach, describe, it, expect } from "vitest";
+import * as vscode from "vscode";
+import {
+  isEditorPasteMaskingEnabled,
+  processPasteText,
+} from "../../src/interception/documentPasteProvider";
 import { TRUE_POSITIVES, MULTI_SECRET_TEXT } from "../fixtures/secrets";
 
 describe("processPasteText", () => {
+  beforeEach(() => {
+    (vscode.workspace as any).getConfiguration = () => ({
+      get: (_key: string, defaultValue: unknown) => defaultValue,
+      update: async () => {},
+    });
+  });
+
   it("returns masked text and count when secrets are present", () => {
     const result = processPasteText(TRUE_POSITIVES.awsAccessKeyId);
     expect(result).not.toBeNull();
@@ -67,5 +78,43 @@ describe("processPasteText", () => {
     const onlyGitHub = new Set(["secretshields.detectors.githubTokens"]);
     const withoutAws = processPasteText(TRUE_POSITIVES.awsAccessKeyId, onlyGitHub);
     expect(withoutAws).toBeNull();
+  });
+
+  it("treats secretshields.enabled=false as a master switch for editor paste masking", () => {
+    (vscode.workspace as any).getConfiguration = () => ({
+      get: (key: string, defaultValue: unknown) => {
+        if (key === "enabled") return false;
+        return defaultValue;
+      },
+      update: async () => {},
+    });
+
+    expect(isEditorPasteMaskingEnabled()).toBe(false);
+  });
+
+  it("disables editor paste masking when mode is off", () => {
+    (vscode.workspace as any).getConfiguration = () => ({
+      get: (key: string, defaultValue: unknown) => {
+        if (key === "enabled") return true;
+        if (key === "editorPasteMasking.mode") return "off";
+        return defaultValue;
+      },
+      update: async () => {},
+    });
+
+    expect(isEditorPasteMaskingEnabled()).toBe(false);
+  });
+
+  it("keeps editor paste masking enabled when the extension is enabled and mode is offer", () => {
+    (vscode.workspace as any).getConfiguration = () => ({
+      get: (key: string, defaultValue: unknown) => {
+        if (key === "enabled") return true;
+        if (key === "editorPasteMasking.mode") return "offer";
+        return defaultValue;
+      },
+      update: async () => {},
+    });
+
+    expect(isEditorPasteMaskingEnabled()).toBe(true);
   });
 });

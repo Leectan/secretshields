@@ -18,17 +18,32 @@ export class CountdownManager implements vscode.Disposable {
   constructor(private readonly exposureStore: ExposureStore) {}
 
   startCountdown(exposureId: string, minutes: number, provider: string, rotationUrl: string | null): void {
-    // Cancel existing countdown for this exposure if any
-    this.cancelCountdown(exposureId);
-
     const ms = minutes * 60 * 1000;
-    const expiresAt = Date.now() + ms;
+    this.scheduleCountdown(exposureId, ms, Date.now() + ms, provider, rotationUrl);
+  }
 
-    const timer = setTimeout(() => {
-      this.onCountdownExpired(exposureId, provider, rotationUrl);
-    }, ms);
+  /**
+   * Rehydrate unresolved exposures after reload/restart so reminders still fire.
+   */
+  resumePendingCountdowns(): void {
+    for (const exposure of this.exposureStore.getExposed()) {
+      const expiresAt =
+        exposure.timestamp + exposure.countdownMinutes * 60 * 1000;
+      this.scheduleCountdown(
+        exposure.id,
+        expiresAt - Date.now(),
+        expiresAt,
+        exposure.provider,
+        exposure.rotationUrl
+      );
+    }
+  }
 
-    this.countdowns.set(exposureId, { exposureId, timer, expiresAt });
+  cancelAllCountdowns(): void {
+    for (const countdown of this.countdowns.values()) {
+      clearTimeout(countdown.timer);
+    }
+    this.countdowns.clear();
   }
 
   cancelCountdown(exposureId: string): void {
@@ -41,6 +56,22 @@ export class CountdownManager implements vscode.Disposable {
 
   getActiveCount(): number {
     return this.countdowns.size;
+  }
+
+  private scheduleCountdown(
+    exposureId: string,
+    delayMs: number,
+    expiresAt: number,
+    provider: string,
+    rotationUrl: string | null
+  ): void {
+    this.cancelCountdown(exposureId);
+
+    const timer = setTimeout(() => {
+      void this.onCountdownExpired(exposureId, provider, rotationUrl);
+    }, Math.max(0, delayMs));
+
+    this.countdowns.set(exposureId, { exposureId, timer, expiresAt });
   }
 
   private async onCountdownExpired(
@@ -71,9 +102,6 @@ export class CountdownManager implements vscode.Disposable {
   }
 
   dispose(): void {
-    for (const countdown of this.countdowns.values()) {
-      clearTimeout(countdown.timer);
-    }
-    this.countdowns.clear();
+    this.cancelAllCountdowns();
   }
 }

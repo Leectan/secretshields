@@ -1,499 +1,1814 @@
-<!DOCTYPE html>
-<html lang="en" class="dark scroll-smooth">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SecretShields | Local-First Secret Masking for AI Editors</title>
-    <meta name="description" content="Secure your application while you build. SecretShields automatically masks secrets at the clipboard layer to prevent leaks into Cursor, Copilot, and terminals.">
-    <!-- Open Graph -->
-    <meta property="og:title" content="SecretShields — Local-First Secret Masking for AI Editors">
-    <meta property="og:description" content="Masks sensitive data by default. Reveal a secret intentionally — we track the exposure and remind you to rotate. 100% local, zero telemetry.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://leectan.github.io/secretshields/">
-    <meta property="og:image" content="https://raw.githubusercontent.com/Leectan/secretshields/main/media/shield.png">
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="SecretShields — Local-First Secret Masking for AI Editors">
-    <meta name="twitter:description" content="Masks sensitive data by default. Reveal a secret intentionally — we track the exposure and remind you to rotate.">
-    <meta name="twitter:image" content="https://raw.githubusercontent.com/Leectan/secretshields/main/media/shield.png">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        primary: {
-                            400: '#38bdf8', // Sky 400
-                            500: '#0ea5e9', // Sky 500
-                            600: '#0284c7', // Sky 600
-                        },
-                        dark: {
-                            800: '#18181b',
-                            900: '#09090b',
-                            950: '#000000',
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        mono: ['Fira Code', 'monospace'],
-                    },
-                    animation: {
-                        'float': 'float 6s ease-in-out infinite',
-                        'pulse-glow': 'pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                    },
-                    keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-10px)' },
-                        },
-                        'pulse-glow': {
-                            '0%, 100%': { opacity: 1 },
-                            '50%': { opacity: .5 },
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      SecretShields | Local-Only Secret Masking for VS Code and Cursor
+    </title>
+    <meta
+      name="description"
+      content="SecretShields is a public beta VS Code/Cursor extension that masks secrets in your clipboard before paste. The extension runs locally with zero telemetry and no outbound network calls."
+    />
+    <meta name="theme-color" content="#08111f" />
+    <link rel="icon" href="shield.png" type="image/png" />
+    <meta
+      property="og:title"
+      content="SecretShields | Local-Only Secret Masking for VS Code and Cursor"
+    />
+    <meta
+      property="og:description"
+      content="Public beta VS Code/Cursor extension. Masks secrets in your clipboard before paste, keeps detection local, and reminds you to rotate after deliberate exposure."
+    />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:url"
+      content="https://leectan.github.io/secretshields/"
+    />
+    <meta
+      property="og:image"
+      content="https://leectan.github.io/secretshields/shield.png"
+    />
+    <meta name="twitter:card" content="summary" />
+    <meta
+      name="twitter:title"
+      content="SecretShields | Local-Only Secret Masking for VS Code and Cursor"
+    />
+    <meta
+      name="twitter:description"
+      content="Public beta VS Code/Cursor extension. Masks secrets in your clipboard before paste, keeps detection local, and reminds you to rotate after deliberate exposure."
+    />
+    <meta
+      name="twitter:image"
+      content="https://leectan.github.io/secretshields/shield.png"
+    />
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .font-mono { font-family: 'Fira Code', monospace; }
-        
-        .hero-gradient {
-            background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
-                        radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.15) 0%, transparent 40%);
+      :root {
+        color-scheme: dark;
+        --bg: #050c18;
+        --bg-elevated: rgba(8, 18, 33, 0.82);
+        --bg-panel: rgba(12, 24, 44, 0.82);
+        --bg-card: linear-gradient(
+          180deg,
+          rgba(12, 24, 44, 0.9) 0%,
+          rgba(8, 15, 29, 0.94) 100%
+        );
+        --border: rgba(148, 163, 184, 0.16);
+        --border-strong: rgba(125, 211, 252, 0.32);
+        --text-main: #e5eef8;
+        --text-muted: #b5c3d7;
+        --text-subtle: #8ea2bc;
+        --text-faint: #6d7f96;
+        --accent: #38bdf8;
+        --accent-strong: #0ea5e9;
+        --accent-emerald: #34d399;
+        --accent-amber: #fbbf24;
+        --shadow: 0 28px 80px rgba(2, 8, 23, 0.45);
+        --font-sans:
+          "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+        --font-mono:
+          "SFMono-Regular", "SF Mono", "Cascadia Code", Consolas, Menlo,
+          monospace;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: var(--font-sans);
+        color: var(--text-main);
+        background:
+          radial-gradient(
+            circle at top right,
+            rgba(14, 165, 233, 0.15) 0%,
+            transparent 32%
+          ),
+          radial-gradient(
+            circle at bottom left,
+            rgba(52, 211, 153, 0.1) 0%,
+            transparent 26%
+          ),
+          linear-gradient(180deg, #08111f 0%, #060d18 100%);
+      }
+
+      body::before,
+      body::after {
+        content: "";
+        position: fixed;
+        inset: auto;
+        width: 22rem;
+        height: 22rem;
+        border-radius: 999px;
+        filter: blur(90px);
+        opacity: 0.22;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      body::before {
+        top: -6rem;
+        right: -6rem;
+        background: rgba(56, 189, 248, 0.45);
+      }
+
+      body::after {
+        left: -8rem;
+        bottom: 10rem;
+        background: rgba(52, 211, 153, 0.28);
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      img {
+        max-width: 100%;
+      }
+
+      .site-shell {
+        position: relative;
+        z-index: 1;
+      }
+
+      .container {
+        width: min(1120px, calc(100% - 2rem));
+        margin: 0 auto;
+      }
+
+      .site-nav {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        backdrop-filter: blur(18px);
+        background: rgba(5, 12, 24, 0.72);
+        border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+      }
+
+      .nav-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        min-height: 4.5rem;
+        padding: 0.75rem 0;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.8rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      .brand-mark {
+        width: 2.25rem;
+        height: 2.25rem;
+        border-radius: 0.9rem;
+        display: inline-grid;
+        place-items: center;
+        background: linear-gradient(
+          135deg,
+          rgba(56, 189, 248, 0.16),
+          rgba(52, 211, 153, 0.14)
+        );
+        border: 1px solid rgba(125, 211, 252, 0.25);
+        color: var(--accent);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      }
+
+      .brand-name {
+        font-size: 1.15rem;
+        color: #f7fbff;
+      }
+
+      .nav-links {
+        display: inline-flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .nav-link {
+        color: var(--text-subtle);
+        font-size: 0.95rem;
+        font-weight: 600;
+        transition: color 160ms ease;
+      }
+
+      .nav-link:hover,
+      .nav-link:focus-visible {
+        color: #ffffff;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.65rem;
+        min-height: 3.05rem;
+        padding: 0 1.15rem;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        font-weight: 700;
+        font-size: 0.98rem;
+        transition:
+          transform 180ms ease,
+          border-color 180ms ease,
+          background 180ms ease,
+          color 180ms ease;
+      }
+
+      .button:hover,
+      .button:focus-visible {
+        transform: translateY(-1px);
+      }
+
+      .button-primary {
+        color: #04101d;
+        background: linear-gradient(135deg, #f8fafc, #dbeafe);
+        box-shadow: 0 16px 36px rgba(56, 189, 248, 0.18);
+      }
+
+      .button-primary:hover,
+      .button-primary:focus-visible {
+        background: linear-gradient(135deg, #ffffff, #e0f2fe);
+      }
+
+      .button-secondary {
+        color: var(--text-main);
+        background: rgba(15, 23, 42, 0.55);
+        border-color: rgba(148, 163, 184, 0.18);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      }
+
+      .button-secondary:hover,
+      .button-secondary:focus-visible {
+        border-color: rgba(125, 211, 252, 0.32);
+        background: rgba(15, 23, 42, 0.72);
+      }
+
+      .hero {
+        padding: clamp(5.5rem, 10vw, 8.5rem) 0 4.75rem;
+      }
+
+      .hero-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(22rem, 0.9fr);
+        gap: clamp(2rem, 5vw, 4rem);
+        align-items: center;
+      }
+
+      .hero-copy {
+        max-width: 40rem;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        margin-bottom: 1.25rem;
+        padding: 0.55rem 0.9rem;
+        border-radius: 999px;
+        background: rgba(8, 26, 42, 0.7);
+        border: 1px solid rgba(125, 211, 252, 0.18);
+        color: #8fe6ff;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font-size: 0.76rem;
+        font-weight: 800;
+      }
+
+      .eyebrow-dot {
+        position: relative;
+        width: 0.6rem;
+        height: 0.6rem;
+        border-radius: 999px;
+        background: var(--accent);
+        box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.45);
+        animation: pulse 2.2s infinite;
+      }
+
+      .hero-title {
+        margin: 0;
+        font-size: clamp(3rem, 7vw, 5.6rem);
+        line-height: 0.98;
+        letter-spacing: -0.055em;
+        color: #f8fbff;
+      }
+
+      .hero-title .accent {
+        display: inline-block;
+        background: linear-gradient(135deg, #7dd3fc 0%, #34d399 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .hero-lead {
+        margin: 1.4rem 0 0;
+        font-size: 1.08rem;
+        line-height: 1.78;
+        color: var(--text-muted);
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        margin-top: 1.8rem;
+      }
+
+      .stats-cluster {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        margin-top: 0.95rem;
+      }
+
+      .stats-badge,
+      .trust-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        min-height: 2.9rem;
+        padding: 0.6rem 0.9rem;
+        border-radius: 999px;
+        background: rgba(10, 18, 32, 0.62);
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        color: var(--text-muted);
+        font-size: 0.94rem;
+      }
+
+      .stats-badge[hidden] {
+        display: none;
+      }
+
+      .stats-badge strong {
+        color: #ffffff;
+        font-size: 1rem;
+      }
+
+      .trust-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        margin-top: 1.1rem;
+      }
+
+      .trust-chip {
+        font-weight: 600;
+      }
+
+      .trust-chip svg,
+      .stats-badge svg {
+        color: var(--accent-emerald);
+        flex: none;
+      }
+
+      .hero-note {
+        margin-top: 0.85rem;
+        color: var(--text-faint);
+        font-size: 0.9rem;
+      }
+
+      .hero-note[hidden] {
+        display: none;
+      }
+
+      .mock-shell {
+        position: relative;
+        animation: float 6s ease-in-out infinite;
+      }
+
+      .mock-shell::before {
+        content: "";
+        position: absolute;
+        inset: -0.9rem;
+        border-radius: 2rem;
+        background: linear-gradient(
+          135deg,
+          rgba(56, 189, 248, 0.32),
+          rgba(52, 211, 153, 0.24)
+        );
+        filter: blur(34px);
+        opacity: 0.45;
+        z-index: 0;
+      }
+
+      .mock-window {
+        position: relative;
+        z-index: 1;
+        overflow: hidden;
+        border-radius: 1.5rem;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        background: rgba(5, 11, 23, 0.82);
+        box-shadow: var(--shadow);
+      }
+
+      .mock-topbar {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        padding: 1rem 1.15rem;
+        background: rgba(7, 12, 23, 0.86);
+        border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+      }
+
+      .window-dots {
+        display: inline-flex;
+        gap: 0.45rem;
+      }
+
+      .window-dots span {
+        width: 0.72rem;
+        height: 0.72rem;
+        border-radius: 999px;
+        display: inline-block;
+      }
+
+      .window-dots span:nth-child(1) {
+        background: rgba(248, 113, 113, 0.85);
+      }
+      .window-dots span:nth-child(2) {
+        background: rgba(251, 191, 36, 0.85);
+      }
+      .window-dots span:nth-child(3) {
+        background: rgba(74, 222, 128, 0.85);
+      }
+
+      .mock-title {
+        color: var(--text-subtle);
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .mock-body {
+        padding: 1.4rem;
+        font-family: var(--font-mono);
+        font-size: 0.92rem;
+        line-height: 1.7;
+      }
+
+      .mock-row-label {
+        color: #7d90a7;
+      }
+
+      .mock-panel {
+        margin-top: 1rem;
+        padding: 1rem;
+        border-radius: 1rem;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(148, 163, 184, 0.16);
+      }
+
+      .mock-success {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.65rem;
+        margin-top: 1rem;
+        padding: 0.85rem 1rem;
+        border-radius: 1rem;
+        background: rgba(14, 165, 233, 0.12);
+        border: 1px solid rgba(14, 165, 233, 0.18);
+        color: #d6f3ff;
+        font-size: 0.82rem;
+      }
+
+      .typing-demo {
+        display: inline-block;
+        overflow: hidden;
+        max-width: 100%;
+        white-space: nowrap;
+        vertical-align: bottom;
+        border-right: 2px solid var(--accent-strong);
+        animation:
+          typing 4.2s steps(32, end) infinite,
+          caret 0.75s step-end infinite;
+      }
+
+      .section {
+        padding: 5rem 0;
+        border-top: 1px solid rgba(148, 163, 184, 0.08);
+      }
+
+      .section-header {
+        max-width: 44rem;
+        margin: 0 auto 2.25rem;
+        text-align: center;
+      }
+
+      .section-header h2 {
+        margin: 0;
+        font-size: clamp(2rem, 4vw, 2.8rem);
+        letter-spacing: -0.04em;
+        color: #f8fbff;
+      }
+
+      .section-header p {
+        margin: 1rem 0 0;
+        color: var(--text-muted);
+        line-height: 1.78;
+        font-size: 1.02rem;
+      }
+
+      .feature-grid,
+      .roadmap-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1.25rem;
+      }
+
+      .card {
+        padding: 1.45rem;
+        border-radius: 1.45rem;
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        background: var(--bg-card);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+      }
+
+      .card h3 {
+        margin: 1rem 0 0.55rem;
+        font-size: 1.18rem;
+        letter-spacing: -0.03em;
+        color: #f8fbff;
+      }
+
+      .card p,
+      .card li {
+        color: var(--text-muted);
+        line-height: 1.72;
+        font-size: 0.96rem;
+      }
+
+      .card ul {
+        list-style: none;
+        padding: 0;
+        margin: 1.15rem 0 0;
+        display: grid;
+        gap: 0.8rem;
+      }
+
+      .card li {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+
+      .card li svg {
+        flex: none;
+        margin-top: 0.18rem;
+      }
+
+      .card-icon {
+        width: 3rem;
+        height: 3rem;
+        border-radius: 1rem;
+        display: inline-grid;
+        place-items: center;
+        border: 1px solid rgba(148, 163, 184, 0.14);
+      }
+
+      .card-icon.primary {
+        color: var(--accent);
+        background: rgba(56, 189, 248, 0.12);
+      }
+
+      .card-icon.emerald {
+        color: var(--accent-emerald);
+        background: rgba(52, 211, 153, 0.12);
+      }
+
+      .card-icon.amber {
+        color: var(--accent-amber);
+        background: rgba(251, 191, 36, 0.12);
+      }
+
+      .detector-cloud {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.75rem;
+      }
+
+      .detector-pill {
+        padding: 0.72rem 1rem;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        background: rgba(8, 16, 31, 0.78);
+        color: var(--text-muted);
+        font-size: 0.94rem;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+      }
+
+      .faq-list {
+        display: grid;
+        gap: 1rem;
+      }
+
+      .faq-card {
+        padding: 1.45rem;
+        border-radius: 1.4rem;
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        background: rgba(8, 16, 31, 0.76);
+      }
+
+      .faq-card h3 {
+        margin: 0 0 0.55rem;
+        font-size: 1.08rem;
+        letter-spacing: -0.025em;
+        color: #f8fbff;
+      }
+
+      .faq-card p {
+        margin: 0;
+        color: var(--text-muted);
+        line-height: 1.72;
+        font-size: 0.96rem;
+      }
+
+      .roadmap-intro {
+        max-width: 46rem;
+        margin: 0 auto;
+        text-align: center;
+      }
+
+      .roadmap-intro h2 {
+        margin: 0;
+        font-size: clamp(2rem, 4vw, 2.8rem);
+        letter-spacing: -0.04em;
+        color: #f8fbff;
+      }
+
+      .roadmap-intro p {
+        margin: 0.9rem 0 0;
+        color: var(--text-muted);
+        line-height: 1.72;
+      }
+
+      .roadmap-intro .muted {
+        color: var(--text-faint);
+        font-size: 0.92rem;
+      }
+
+      .plan-card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        min-height: 100%;
+      }
+
+      .plan-card.featured {
+        border-color: rgba(56, 189, 248, 0.34);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.04),
+          0 22px 70px rgba(2, 8, 23, 0.28);
+      }
+
+      .plan-tag {
+        position: absolute;
+        top: -0.7rem;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 0.35rem 0.7rem;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #0ea5e9, #34d399);
+        color: #03111e;
+        font-size: 0.74rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .plan-top {
+        margin-bottom: 1.2rem;
+      }
+
+      .plan-title {
+        margin: 0;
+        font-size: 1.18rem;
+        letter-spacing: -0.03em;
+        color: #f8fbff;
+      }
+
+      .plan-price {
+        margin-top: 0.7rem;
+        display: flex;
+        align-items: baseline;
+        gap: 0.45rem;
+        flex-wrap: wrap;
+      }
+
+      .plan-price strong {
+        font-size: 2.65rem;
+        line-height: 1;
+        letter-spacing: -0.05em;
+        color: #ffffff;
+      }
+
+      .plan-price span {
+        color: var(--text-faint);
+        font-size: 0.92rem;
+      }
+
+      .plan-card .button {
+        width: 100%;
+        margin-top: auto;
+      }
+
+      .footnote {
+        margin-top: 1.4rem;
+        text-align: center;
+        color: var(--text-faint);
+        font-size: 0.9rem;
+      }
+
+      .cta {
+        padding: 5.5rem 0 5rem;
+      }
+
+      .cta-panel {
+        padding: clamp(2rem, 4vw, 3rem);
+        border-radius: 2rem;
+        border: 1px solid rgba(56, 189, 248, 0.18);
+        background:
+          radial-gradient(
+            circle at top right,
+            rgba(56, 189, 248, 0.14),
+            transparent 38%
+          ),
+          linear-gradient(180deg, rgba(8, 17, 31, 0.92), rgba(5, 11, 23, 0.94));
+        text-align: center;
+        box-shadow: var(--shadow);
+      }
+
+      .cta-panel h2 {
+        margin: 0;
+        font-size: clamp(2rem, 4vw, 3rem);
+        letter-spacing: -0.04em;
+        color: #f8fbff;
+      }
+
+      .cta-panel p {
+        max-width: 40rem;
+        margin: 1rem auto 0;
+        color: var(--text-muted);
+        line-height: 1.72;
+        font-size: 1rem;
+      }
+
+      .cta-actions {
+        display: flex;
+        justify-content: center;
+        margin-top: 1.6rem;
+      }
+
+      footer {
+        padding: 2rem 0 2.8rem;
+        border-top: 1px solid rgba(148, 163, 184, 0.08);
+        background: rgba(5, 10, 19, 0.34);
+      }
+
+      .footer-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .footer-links {
+        display: inline-flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        color: var(--text-faint);
+        font-size: 0.92rem;
+      }
+
+      .footer-links a:hover,
+      .footer-links a:focus-visible {
+        color: #ffffff;
+      }
+
+      .footer-meta {
+        color: var(--text-faint);
+        font-size: 0.9rem;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-12px);
+        }
+      }
+
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.45);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(56, 189, 248, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(56, 189, 248, 0);
+        }
+      }
+
+      @keyframes typing {
+        0%,
+        20% {
+          width: 0;
+        }
+        40%,
+        80% {
+          width: 100%;
+        }
+        100% {
+          width: 0;
+        }
+      }
+
+      @keyframes caret {
+        0%,
+        100% {
+          border-color: transparent;
+        }
+        50% {
+          border-color: var(--accent-strong);
+        }
+      }
+
+      @media (max-width: 960px) {
+        .hero-grid,
+        .feature-grid,
+        .roadmap-grid {
+          grid-template-columns: 1fr;
         }
 
-        .glass-panel {
-            background: rgba(24, 24, 27, 0.6);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+        .mock-shell {
+          max-width: 36rem;
+          margin: 0 auto;
+        }
+      }
+
+      @media (max-width: 720px) {
+        .nav-row {
+          align-items: flex-start;
         }
 
-        /* Typing animation for the demo */
-        .typing-demo {
-            display: inline-block;
-            overflow: hidden;
-            white-space: nowrap;
-            border-right: 2px solid #0ea5e9;
-            animation: typing 4s steps(40, end) infinite, blink .75s step-end infinite;
+        .nav-links {
+          justify-content: flex-start;
         }
 
-        @keyframes typing {
-            0%, 20% { width: 0; }
-            40%, 80% { width: 100%; }
-            100% { width: 0; }
+        .hero-actions,
+        .cta-actions {
+          flex-direction: column;
         }
 
-        @keyframes blink {
-            from, to { border-color: transparent }
-            50% { border-color: #0ea5e9; }
+        .hero-actions .button,
+        .cta-actions .button {
+          width: 100%;
         }
+
+        .stats-cluster,
+        .trust-row {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .stats-badge,
+        .trust-chip {
+          width: 100%;
+          justify-content: flex-start;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+
+        *,
+        *::before,
+        *::after {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
     </style>
-</head>
-<body class="bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-950 text-zinc-300 antialiased selection:bg-primary-500 selection:text-white min-h-screen">
-
-    <!-- Navigation -->
-    <nav class="fixed w-full z-50 glass-panel border-b border-zinc-800/50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-2">
-                    <svg class="w-8 h-8 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                    </svg>
-                    <span class="text-xl font-bold text-white tracking-tight">SecretShields</span>
-                </div>
-                <div class="flex items-center gap-6">
-                    <a href="#pricing" class="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Pricing</a>
-                    <a href="https://github.com/Leectan/secretshields" class="text-sm font-medium text-zinc-400 hover:text-white transition-colors">GitHub</a>
-                    <a href="https://marketplace.visualstudio.com/items?itemName=secretshields.secretshields" class="text-sm font-medium bg-primary-600 hover:bg-primary-500 text-white px-4 py-2 rounded-md transition-all shadow-[0_0_15px_rgba(14,165,233,0.3)]">Install Extension</a>
-                </div>
-            </div>
+  </head>
+  <body>
+    <div class="site-shell">
+      <nav class="site-nav" aria-label="Primary">
+        <div class="container nav-row">
+          <a class="brand" href="#top" aria-label="SecretShields home">
+            <span class="brand-mark" aria-hidden="true">
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                ></path>
+              </svg>
+            </span>
+            <span class="brand-name">SecretShields</span>
+          </a>
+          <div class="nav-links">
+            <a class="nav-link" href="#roadmap">Roadmap</a>
+            <a class="nav-link" href="https://github.com/Leectan/secretshields"
+              >GitHub</a
+            >
+            <a
+              class="button button-primary"
+              href="https://marketplace.visualstudio.com/items?itemName=secretshields.secretshields"
+              >Install Extension</a
+            >
+          </div>
         </div>
-    </nav>
+      </nav>
 
-    <!-- Hero Section -->
-    <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden hero-gradient">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
-                
-                <!-- Hero Content -->
-                <div class="max-w-2xl">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-500/10 border border-primary-500/20 text-primary-400 text-xs font-semibold mb-6 uppercase tracking-wider">
-                        <span class="relative flex h-2 w-2">
-                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
-                          <span class="relative inline-flex rounded-full h-2 w-2 bg-primary-500"></span>
-                        </span>
-                        100% Local & Open Source
-                    </div>
-                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.1] mb-6">
-                        Secure Your App While You Build. <br class="hidden sm:block" />
-                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-emerald-400">Zero Friction.</span>
-                    </h1>
-                    <p class="text-lg text-zinc-400 mb-8 leading-relaxed">
-                        SecretShields masks sensitive data by default. When you intentionally paste a secret, we track the exposure and remind you to rotate it later.
-                    </p>
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                        <a href="https://marketplace.visualstudio.com/items?itemName=secretshields.secretshields" class="flex items-center justify-center gap-2 bg-white text-zinc-900 hover:bg-zinc-100 font-semibold px-6 py-3 rounded-lg transition-all">
-                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M23.15 2.587L18.21.21a1.494 1.494 0 0 0-1.705.29l-9.46 8.63-4.12-3.128a.999.999 0 0 0-1.276.057L.327 7.261A1 1 0 0 0 .326 8.74L8.42 15.45l-5.18 4.66a1 1 0 0 0 .67 1.74h2.07a1 1 0 0 0 .73-.3l4.63-4.94 2.58 2.09a1 1 0 0 0 1.25.07l1.9-1.39a.999.999 0 0 0 .33-.67l2.84-12.92a1.5 1.5 0 0 0-1.12-1.79zm-5.07 11.23l-3.32-2.61L18.8 4.29l-3.32-2.61 5.07 1.83-2.47 10.3z"/></svg>
-                            VS Code Marketplace
-                        </a>
-                        <a href="https://open-vsx.org/extension/secretshields/secretshields" class="flex items-center justify-center gap-2 glass-panel hover:bg-zinc-800/80 text-white border border-zinc-700 font-semibold px-6 py-3 rounded-lg transition-all">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                            OpenVSX (Cursor / Cline)
-                        </a>
-                        <span id="download-badge" class="hidden items-center gap-2 px-4 py-3 rounded-lg bg-gradient-to-r from-primary-500/15 to-emerald-500/15 border border-primary-500/30 text-sm">
-                            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                            <span><span id="download-count" class="font-bold text-white">--</span><span class="text-zinc-400"> Downloads</span></span>
-                        </span>
-                    </div>
-                    <div class="mt-5 flex items-center gap-5 text-base text-zinc-300 font-medium">
-                        <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Free forever</span>
-                        <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Zero telemetry</span>
-                        <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> No network calls</span>
-                    </div>
-                </div>
-
-                <!-- Interactive Hero UI Mockup -->
-                <div class="relative w-full max-w-lg mx-auto lg:mx-0 mt-12 lg:mt-0 animate-float">
-                    <div class="absolute -inset-1 bg-gradient-to-r from-primary-500 to-emerald-500 rounded-xl blur opacity-20"></div>
-                    <div class="relative bg-slate-900/80 backdrop-blur-xl rounded-xl border border-white/10 shadow-2xl overflow-hidden">
-                        
-                        <!-- Mockup Header -->
-                        <div class="bg-zinc-900/80 border-b border-zinc-800 px-4 py-3 flex items-center gap-2">
-                            <div class="flex gap-1.5">
-                                <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
-                                <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
-                                <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
-                            </div>
-                            <span class="ml-2 text-xs text-zinc-500 font-medium">Cursor AI Chat</span>
-                        </div>
-
-                        <!-- Mockup Body -->
-                        <div class="p-5 font-mono text-sm">
-                            <div class="mb-4">
-                                <span class="text-zinc-500">User:</span>
-                                <span class="text-zinc-300">Can you connect to the database using this config?</span>
-                            </div>
-                            
-                            <div class="bg-zinc-800/50 border border-zinc-700/50 rounded p-3 mb-4">
-                                <span class="text-zinc-500">User pasted context:</span><br>
-                                <span class="text-emerald-400">AWS_ACCESS_KEY_ID=</span><span class="typing-demo text-zinc-300">AKIA████████████KEY1</span>
-                            </div>
-                            
-                            <div class="flex items-center gap-2 mt-4 text-xs text-zinc-400 bg-primary-500/10 border border-primary-500/20 p-2 rounded">
-                                <svg class="w-4 h-4 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                                SecretShields: 1 secret masked in clipboard.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <!-- How it works / The Problem -->
-    <section class="py-20 border-t border-white/5 bg-slate-900/20 backdrop-blur-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center max-w-3xl mx-auto mb-16">
-                <h2 class="text-3xl font-bold text-white mb-4">Build AI applications securely. Without the friction.</h2>
-                <p class="text-zinc-400 text-lg">Building too fast and not sure which secrets and API keys you've pasted into IDE chat windows? SecretShields works alongside you to track every exposure, remind you to rotate, and keep your credentials safe — so you can move fast while doing so securely.</p>
-            </div>
-
-            <div class="grid md:grid-cols-3 gap-8">
-                <!-- Feature 1 -->
-                <div class="glass-panel p-6 rounded-xl border border-zinc-800">
-                    <div class="w-12 h-12 bg-primary-500/10 rounded-lg flex items-center justify-center mb-4">
-                        <svg class="w-6 h-6 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                    </div>
-                    <h3 class="text-xl font-semibold text-white mb-2">Omnipresent Protection</h3>
-                    <p class="text-zinc-400 text-sm leading-relaxed">Protects Cursor chat, VS Code Copilot, web-based ChatGPT, terminal CLIs like Claude Code, and even Slack. If you can paste it, we protect it.</p>
-                </div>
-
-                <!-- Feature 2 -->
-                <div class="glass-panel p-6 rounded-xl border border-zinc-800">
-                    <div class="w-12 h-12 bg-emerald-500/10 rounded-lg flex items-center justify-center mb-4">
-                        <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                    </div>
-                    <h3 class="text-xl font-semibold text-white mb-2">Air-gapped & Local</h3>
-                    <p class="text-zinc-400 text-sm leading-relaxed">Zero network calls. No telemetry. Your secrets never leave your machine. SecretShields runs 100% locally with high-performance regex and entropy checks.</p>
-                </div>
-
-                <!-- Feature 3 -->
-                <div class="glass-panel p-6 rounded-xl border border-zinc-800">
-                    <div class="w-12 h-12 bg-amber-500/10 rounded-lg flex items-center justify-center mb-4">
-                        <svg class="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </div>
-                    <h3 class="text-xl font-semibold text-white mb-2">Frictionless Workflow</h3>
-                    <p class="text-zinc-400 text-sm leading-relaxed">Need the real key? Click "Restore for 60s". We put the raw key back in your clipboard for a short window, then automatically trigger a rotation reminder.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Detectors List -->
-    <section class="py-20 border-t border-zinc-800/50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 class="text-2xl font-bold text-center text-white mb-4">39 Detectors. 30+ Platforms. Zero Config.</h2>
-            <p class="text-center text-zinc-400 text-sm mb-10 max-w-2xl mx-auto">Every detector can be individually toggled via settings. Built-in allowlists, entropy checks, and structural validation keep false positives near zero.</p>
-            <div class="flex flex-wrap justify-center gap-3 max-w-5xl mx-auto">
-                <span class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-300">AWS Access Keys</span>
-                <span class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-300">AWS Secret Keys</span>
-                <span class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-300">GitHub Tokens</span>
-                <span class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-300">Stripe Keys</span>
-                <span class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-300">OpenAI API Keys</span>
-                <span class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-300">Anthropic API Keys</span>
-                <span class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-300">Google API Keys</span>
-                <span class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-300">Vercel Tokens</span>
-                <span class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-300">Slack Tokens & Webhooks</span>
-                <span class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-300">SendGrid Keys</span>
-                <span class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-300">Shopify Tokens</span>
-                <span class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-300">Twilio SIDs</span>
-                <span class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-300">DigitalOcean Tokens</span>
-                <span class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-300">npm Tokens</span>
-                <span class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-300">PyPI Tokens</span>
-                <span class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-300">HashiCorp Vault</span>
-                <span class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-300">Doppler Tokens</span>
-                <span class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-300">Linear API Keys</span>
-                <span class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-300">Grafana Tokens</span>
-                <span class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-300">New Relic Keys</span>
-                <span class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-300">Heroku Tokens</span>
-                <span class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-300">PlanetScale Tokens</span>
-                <span class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-300">Docker Hub PATs</span>
-                <span class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-300">Resend Keys</span>
-                <span class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-300">Supabase Keys</span>
-                <span class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-300">Netlify Tokens</span>
-                <span class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-300">Appwrite Keys</span>
-                <span class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-300">Cloudflare Origin CA</span>
-                <span class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-300">Discord Webhooks</span>
-                <span class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-300">Database URLs</span>
-                <span class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-300">SSH Private Keys</span>
-                <span class="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-300">JWTs</span>
-            </div>
-        </div>
-    </section>
-
-    <!-- FAQ Section -->
-    <section class="py-20 border-t border-zinc-800/50">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 class="text-2xl font-bold text-center text-white mb-10">Frequently Asked Questions</h2>
-            <div class="space-y-6">
-                <div class="glass-panel p-6 rounded-xl border border-zinc-800">
-                    <h3 class="text-lg font-semibold text-white mb-2">Why does masking persist after I uninstall?</h3>
-                    <p class="text-zinc-400 text-sm leading-relaxed">SecretShields operates on the system clipboard. Once masked text is written, it becomes the clipboard's actual content at the OS level. Uninstalling the extension does not (and should not) restore raw secrets — that would be a security regression. Simply copy any other text to overwrite the clipboard.</p>
-                </div>
-                <div class="glass-panel p-6 rounded-xl border border-zinc-800">
-                    <h3 class="text-lg font-semibold text-white mb-2">Can SecretShields intercept paste in AI chat inputs?</h3>
-                    <p class="text-zinc-400 text-sm leading-relaxed">VS Code extensions run in a sandboxed Node.js process with no DOM access. SecretShields cannot intercept paste events inside chat panels (Cursor, Copilot, Cline). Instead, it masks the clipboard <em>before</em> you paste — so any paste target receives the masked version automatically.</p>
-                </div>
-                <div class="glass-panel p-6 rounded-xl border border-zinc-800">
-                    <h3 class="text-lg font-semibold text-white mb-2">Does SecretShields make any network calls?</h3>
-                    <p class="text-zinc-400 text-sm leading-relaxed">No. Detection, masking, and alerts are entirely local. No telemetry, no data leaves your machine, and no raw secrets are ever written to disk.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Pricing Section -->
-    <section id="pricing" class="py-20 border-t border-zinc-800/50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center max-w-3xl mx-auto mb-4">
-                <h2 class="text-3xl font-bold text-white mb-4">Simple, honest pricing.</h2>
-                <p class="text-zinc-400 text-lg mb-2">The core protection engine is free forever. We will never paywall the safety promise.</p>
-                <p class="text-zinc-500 text-sm">Paid plans add management, policy, and compliance for teams — not more masking.</p>
-            </div>
-
-            <div class="grid md:grid-cols-3 gap-8 mt-12 max-w-5xl mx-auto">
-
-                <!-- Free Tier -->
-                <div class="glass-panel p-8 rounded-xl border border-zinc-800 flex flex-col">
-                    <div class="mb-6">
-                        <h3 class="text-lg font-semibold text-white mb-1">Community</h3>
-                        <div class="flex items-baseline gap-1">
-                            <span class="text-4xl font-bold text-white">$0</span>
-                            <span class="text-zinc-500 text-sm">forever</span>
-                        </div>
-                    </div>
-                    <p class="text-zinc-400 text-sm mb-6">For solo developers, students, and open source maintainers.</p>
-                    <ul class="space-y-3 text-sm text-zinc-400 mb-8 flex-1">
-                        <li class="flex items-start gap-2">
-                            <svg class="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            15 detectors across 15 platforms
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <svg class="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Automatic clipboard masking
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <svg class="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Restore with TTL + rotation reminders
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <svg class="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Exposure log + per-detector toggles
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <svg class="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Editor paste masking
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <svg class="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            100% local, zero telemetry
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <svg class="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Community support via GitHub
-                        </li>
-                    </ul>
-                    <a href="https://marketplace.visualstudio.com/items?itemName=secretshields.secretshields" class="block text-center bg-white text-zinc-900 hover:bg-zinc-100 font-semibold px-6 py-3 rounded-lg transition-all">
-                        Install Free
-                    </a>
-                </div>
-
-                <!-- Team Tier -->
-                <div class="relative glass-panel p-8 rounded-xl border border-primary-500/40 flex flex-col ring-1 ring-primary-500/20">
-                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-primary-500 text-white text-xs font-semibold rounded-full">Coming Soon</div>
-                    <div class="mb-6">
-                        <h3 class="text-lg font-semibold text-white mb-1">Team</h3>
-                        <div class="flex items-baseline gap-1">
-                            <span class="text-4xl font-bold text-white">$12</span>
-                            <span class="text-zinc-500 text-sm">/ user / month</span>
-                        </div>
-                    </div>
-                    <p class="text-zinc-400 text-sm mb-6">For dev teams that need shared policy and visibility.</p>
-                    <ul class="space-y-3 text-sm text-zinc-400 mb-8 flex-1">
-                        <li class="flex items-start gap-2">
-                            <svg class="w-4 h-4 text-primary-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Everything in Community
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <svg class="w-4 h-4 text-primary-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            All 39+ detectors across 30+ platforms
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <svg class="w-4 h-4 text-primary-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Auto-expanding detectors for 1,000s of platforms
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <svg class="w-4 h-4 text-primary-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Centralized team policy + shared allowlists
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <svg class="w-4 h-4 text-primary-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Metadata-only exposure dashboard
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <svg class="w-4 h-4 text-primary-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Slack / Teams / Jira integrations
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <svg class="w-4 h-4 text-primary-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Priority support
-                        </li>
-                    </ul>
-                    <a href="https://github.com/Leectan/secretshields/discussions" class="block text-center bg-primary-600 hover:bg-primary-500 text-white font-semibold px-6 py-3 rounded-lg transition-all shadow-[0_0_15px_rgba(14,165,233,0.3)]">
-                        Join Waitlist
-                    </a>
-                </div>
-
-                <!-- Enterprise Tier -->
-                <div class="glass-panel p-8 rounded-xl border border-zinc-800 flex flex-col">
-                    <div class="mb-6">
-                        <h3 class="text-lg font-semibold text-white mb-1">Enterprise</h3>
-                        <div class="flex items-baseline gap-1">
-                            <span class="text-4xl font-bold text-white">Custom</span>
-                        </div>
-                    </div>
-                    <p class="text-zinc-400 text-sm mb-6">For organizations that need governance, compliance, and deployment flexibility.</p>
-                    <ul class="space-y-3 text-sm text-zinc-400 mb-8 flex-1">
-                        <li class="flex items-start gap-2">
-                            <svg class="w-4 h-4 text-amber-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Everything in Team
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <svg class="w-4 h-4 text-amber-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            SSO / SCIM / RBAC
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <svg class="w-4 h-4 text-amber-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Audit log export + SIEM integration
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <svg class="w-4 h-4 text-amber-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Self-hosted / air-gapped deployment
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <svg class="w-4 h-4 text-amber-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Compliance reporting + DPA
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <svg class="w-4 h-4 text-amber-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Dedicated support + onboarding
-                        </li>
-                    </ul>
-                    <a href="https://github.com/Leectan/secretshields/discussions" class="block text-center glass-panel hover:bg-zinc-800/80 text-white border border-zinc-700 font-semibold px-6 py-3 rounded-lg transition-all">
-                        Contact Us
-                    </a>
-                </div>
-
-            </div>
-
-            <p class="text-center text-zinc-600 text-xs mt-8">All tiers keep secrets local. Paid plans transmit metadata only (masked previews, event timestamps) — never raw credentials.</p>
-        </div>
-    </section>
-
-    <!-- CTA Section -->
-    <section class="py-24 relative overflow-hidden">
-        <div class="absolute inset-0 bg-primary-600/10"></div>
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-            <h2 class="text-3xl sm:text-4xl font-bold text-white mb-6">Start building securely today.</h2>
-            <p class="text-lg text-zinc-400 mb-8">Install SecretShields for free and never worry about accidentally pasting production credentials into an AI chat again.</p>
-            <div class="flex justify-center gap-4">
-                <a href="https://marketplace.visualstudio.com/items?itemName=secretshields.secretshields" class="bg-primary-600 hover:bg-primary-500 text-white font-semibold px-8 py-3 rounded-lg transition-all shadow-[0_0_20px_rgba(14,165,233,0.4)]">
-                    Install Extension
+      <main id="top">
+        <section class="hero">
+          <div class="container hero-grid">
+            <div class="hero-copy">
+              <div class="eyebrow">
+                <span class="eyebrow-dot" aria-hidden="true"></span>
+                Public Beta
+              </div>
+              <h1 class="hero-title">
+                Secure your build flow.
+                <span class="accent">Keep paste accidents boring.</span>
+              </h1>
+              <p class="hero-lead">
+                SecretShields is a local-only VS Code/Cursor extension that
+                masks secrets in your clipboard before paste. If you
+                deliberately restore one, it records the exposure locally and
+                reminds you to rotate it later.
+              </p>
+              <div class="hero-actions">
+                <a
+                  class="button button-primary"
+                  href="https://marketplace.visualstudio.com/items?itemName=secretshields.secretshields"
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M23.15 2.587L18.21.21a1.494 1.494 0 0 0-1.705.29l-9.46 8.63-4.12-3.128a.999.999 0 0 0-1.276.057L.327 7.261A1 1 0 0 0 .326 8.74L8.42 15.45l-5.18 4.66a1 1 0 0 0 .67 1.74h2.07a1 1 0 0 0 .73-.3l4.63-4.94 2.58 2.09a1 1 0 0 0 1.25.07l1.9-1.39a.999.999 0 0 0 .33-.67l2.84-12.92a1.5 1.5 0 0 0-1.12-1.79zm-5.07 11.23l-3.32-2.61L18.8 4.29l-3.32-2.61 5.07 1.83-2.47 10.3z"
+                    ></path>
+                  </svg>
+                  VS Code Marketplace
                 </a>
+                <a
+                  class="button button-secondary"
+                  href="https://open-vsx.org/extension/secretshields/secretshields"
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M13 3v8h8l-10 10v-8H3L13 3z"
+                    ></path>
+                  </svg>
+                  OpenVSX for Cursor
+                </a>
+              </div>
+              <div class="stats-cluster">
+                <div id="download-badge" class="stats-badge" hidden>
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                    ></path>
+                  </svg>
+                  <span
+                    ><strong id="download-count">--</strong> Marketplace
+                    downloads</span
+                  >
+                </div>
+              </div>
+              <div class="trust-row">
+                <div class="trust-chip">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                  Free forever
+                </div>
+                <div class="trust-chip">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                  Extension: zero telemetry
+                </div>
+                <div class="trust-chip">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                  Extension: no outbound network calls
+                </div>
+              </div>
+              <p id="stats-updated" class="hero-note" hidden></p>
             </div>
-        </div>
-    </section>
 
-    <!-- Footer -->
-    <footer class="border-t border-white/5 bg-slate-950/40 backdrop-blur-lg py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
-            <div class="flex items-center gap-2">
-                <svg class="w-6 h-6 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                <span class="text-zinc-400 font-semibold">SecretShields</span>
+            <div class="mock-shell" aria-hidden="true">
+              <div class="mock-window">
+                <div class="mock-topbar">
+                  <div class="window-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                  <span class="mock-title">Cursor AI Chat</span>
+                </div>
+                <div class="mock-body">
+                  <div>
+                    <span class="mock-row-label">User:</span>
+                    Can you connect to the database using this config?
+                  </div>
+                  <div class="mock-panel">
+                    <div class="mock-row-label">User pasted context:</div>
+                    <div>
+                      <span style="color: #34d399">AWS_ACCESS_KEY_ID=</span
+                      ><span class="typing-demo">AKIA************KEY1</span>
+                    </div>
+                  </div>
+                  <div class="mock-success">
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                      ></path>
+                    </svg>
+                    SecretShields: 1 secret masked in clipboard.
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="flex gap-6 text-sm text-zinc-500">
-                <a href="https://github.com/Leectan/secretshields" class="hover:text-white transition-colors">GitHub Repository</a>
-                <a href="https://github.com/Leectan/secretshields/issues" class="hover:text-white transition-colors">Report an Issue</a>
-                <a href="https://marketplace.visualstudio.com/items?itemName=secretshields.secretshields" class="hover:text-white transition-colors">VS Code Marketplace</a>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="container">
+            <div class="section-header">
+              <h2>Build with AI without leaking secrets.</h2>
+              <p>
+                Copy and paste is the failure mode. SecretShields stays in the
+                workflow you already use, masks risky clipboard content before
+                paste, and only creates an exposure record when you deliberately
+                restore the real value.
+              </p>
             </div>
-            <div class="text-sm text-zinc-600">
-                &copy; 2026 SecretShields. MIT Licensed.
+            <div class="feature-grid">
+              <article class="card">
+                <div class="card-icon primary" aria-hidden="true">
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                    ></path>
+                  </svg>
+                </div>
+                <h3>Clipboard-first protection</h3>
+                <p>
+                  SecretShields rewrites secrets in the clipboard before paste.
+                  That covers paste-based workflows such as AI chats, terminals,
+                  web apps, and messaging tools without pretending to be a
+                  native integration inside each one.
+                </p>
+              </article>
+              <article class="card">
+                <div class="card-icon emerald" aria-hidden="true">
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                    ></path>
+                  </svg>
+                </div>
+                <h3>Local-only extension</h3>
+                <p>
+                  The extension runtime makes no outbound network calls and
+                  sends no telemetry. Detection, masking, restore flow, and
+                  rotation reminders stay on-device inside VS Code or Cursor.
+                </p>
+              </article>
+              <article class="card">
+                <div class="card-icon amber" aria-hidden="true">
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    ></path>
+                  </svg>
+                </div>
+                <h3>Deliberate restore, then rotation</h3>
+                <p>
+                  Need the real key for a minute? Restore it briefly to the
+                  clipboard, log the exposure intentionally, and let a separate
+                  severity-based countdown remind you to rotate it later.
+                </p>
+              </article>
             </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="container">
+            <div class="section-header">
+              <h2>38 detection patterns. 30+ services. Zero config.</h2>
+              <p>
+                Every detector can be toggled individually in settings. Built-in
+                allowlists, entropy checks, and structural validation keep false
+                positives low enough to leave protection on by default.
+              </p>
+            </div>
+            <div class="detector-cloud">
+              <span class="detector-pill">AWS Access Keys</span>
+              <span class="detector-pill">AWS Secret Keys</span>
+              <span class="detector-pill">GitHub Tokens</span>
+              <span class="detector-pill">Stripe Keys</span>
+              <span class="detector-pill">OpenAI API Keys</span>
+              <span class="detector-pill">Anthropic API Keys</span>
+              <span class="detector-pill">Google API Keys</span>
+              <span class="detector-pill">Vercel Tokens</span>
+              <span class="detector-pill">Slack Tokens and Webhooks</span>
+              <span class="detector-pill">SendGrid Keys</span>
+              <span class="detector-pill">Shopify Tokens</span>
+              <span class="detector-pill">Twilio SIDs</span>
+              <span class="detector-pill">DigitalOcean Tokens</span>
+              <span class="detector-pill">npm Tokens</span>
+              <span class="detector-pill">PyPI Tokens</span>
+              <span class="detector-pill">HashiCorp Vault</span>
+              <span class="detector-pill">Doppler Tokens</span>
+              <span class="detector-pill">Linear API Keys</span>
+              <span class="detector-pill">Grafana Tokens</span>
+              <span class="detector-pill">New Relic Keys</span>
+              <span class="detector-pill">Heroku Tokens</span>
+              <span class="detector-pill">PlanetScale Tokens</span>
+              <span class="detector-pill">Docker Hub PATs</span>
+              <span class="detector-pill">Resend Keys</span>
+              <span class="detector-pill">Supabase Keys</span>
+              <span class="detector-pill">Netlify Tokens</span>
+              <span class="detector-pill">Appwrite Keys</span>
+              <span class="detector-pill">Cloudflare Origin CA</span>
+              <span class="detector-pill">Discord Webhooks</span>
+              <span class="detector-pill">Database URLs</span>
+              <span class="detector-pill">SSH Private Keys</span>
+              <span class="detector-pill">JWTs</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="container">
+            <div class="section-header">
+              <h2>Frequently asked questions</h2>
+            </div>
+            <div class="faq-list">
+              <article class="faq-card">
+                <h3>Why does masking persist after I uninstall?</h3>
+                <p>
+                  SecretShields operates on the system clipboard. Once masked
+                  text is written, it becomes the clipboard's real content at
+                  the OS level. Uninstalling the extension does not restore raw
+                  secrets, because doing so would be a security regression. Copy
+                  any other text to overwrite the clipboard.
+                </p>
+              </article>
+              <article class="faq-card">
+                <h3>Can SecretShields protect AI chat inputs?</h3>
+                <p>
+                  Not by hooking into those UIs directly. VS Code extensions do
+                  not get DOM access inside chat panels, so SecretShields
+                  protects the clipboard before paste instead. The chat tool
+                  receives the masked version because that is what reached the
+                  clipboard.
+                </p>
+              </article>
+              <article class="faq-card">
+                <h3>Does the extension make any network calls?</h3>
+                <p>
+                  No. The extension runtime does not make outbound network
+                  calls. Detection, masking, restore flow, and alerts stay
+                  local, no telemetry is sent, and no raw secrets are written to
+                  disk.
+                </p>
+              </article>
+              <article class="faq-card">
+                <h3>Is SecretShields production-ready?</h3>
+                <p>
+                  It is usable today, but it is still a public beta. Core
+                  protection works now; detector coverage, UX polish, and
+                  operational docs are still being hardened in the open.
+                </p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section id="roadmap" class="section">
+          <div class="container">
+            <div class="roadmap-intro">
+              <h2>Current product status</h2>
+              <p>
+                Today there is one fully free, local-only public beta extension.
+              </p>
+              <p class="muted">
+                The team and enterprise ideas below are exploratory only. They
+                are not bundled, running, or sold in the current product.
+              </p>
+            </div>
+            <div class="roadmap-grid" style="margin-top: 2.5rem">
+              <article class="card plan-card">
+                <div class="plan-top">
+                  <h3 class="plan-title">Available today</h3>
+                  <div class="plan-price">
+                    <strong>$0</strong>
+                    <span>forever</span>
+                  </div>
+                </div>
+                <p>
+                  One open-source extension for solo developers, teams,
+                  students, and OSS maintainers.
+                </p>
+                <ul>
+                  <li>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#34d399"
+                      aria-hidden="true"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      ></path>
+                    </svg>
+                    All shipped detectors in one install
+                  </li>
+                  <li>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#34d399"
+                      aria-hidden="true"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      ></path>
+                    </svg>
+                    Automatic clipboard masking
+                  </li>
+                  <li>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#34d399"
+                      aria-hidden="true"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      ></path>
+                    </svg>
+                    Restore with TTL plus rotation reminders
+                  </li>
+                  <li>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#34d399"
+                      aria-hidden="true"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      ></path>
+                    </svg>
+                    Exposure log and per-detector toggles
+                  </li>
+                  <li>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#34d399"
+                      aria-hidden="true"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      ></path>
+                    </svg>
+                    Editor paste masking
+                  </li>
+                  <li>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#34d399"
+                      aria-hidden="true"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      ></path>
+                    </svg>
+                    Local processing and zero telemetry
+                  </li>
+                  <li>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#34d399"
+                      aria-hidden="true"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      ></path>
+                    </svg>
+                    Community support via GitHub
+                  </li>
+                </ul>
+                <a
+                  class="button button-primary"
+                  href="https://marketplace.visualstudio.com/items?itemName=secretshields.secretshields"
+                  >Install free</a
+                >
+              </article>
+
+              <article class="card plan-card featured">
+                <div class="plan-tag">Exploratory</div>
+                <div class="plan-top">
+                  <h3 class="plan-title">Possible team layer</h3>
+                  <div class="plan-price">
+                    <strong style="font-size: 2rem">Not shipped</strong>
+                  </div>
+                </div>
+                <p>
+                  Ideas under consideration if teams ask for shared controls
+                  without changing the current local-first masking model.
+                </p>
+                <ul>
+                  <li>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#38bdf8"
+                      aria-hidden="true"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      ></path>
+                    </svg>
+                    Shared policy and allowlists
+                  </li>
+                  <li>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#38bdf8"
+                      aria-hidden="true"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      ></path>
+                    </svg>
+                    Metadata-only exposure dashboards
+                  </li>
+                  <li>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#38bdf8"
+                      aria-hidden="true"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      ></path>
+                    </svg>
+                    Admin workflows around the existing local engine
+                  </li>
+                  <li>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#38bdf8"
+                      aria-hidden="true"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      ></path>
+                    </svg>
+                    Slack, Teams, or Jira integrations
+                  </li>
+                  <li>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#38bdf8"
+                      aria-hidden="true"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      ></path>
+                    </svg>
+                    Explicitly not part of today's release
+                  </li>
+                </ul>
+                <a
+                  class="button button-secondary"
+                  href="https://github.com/Leectan/secretshields/discussions"
+                  >Share team use cases</a
+                >
+              </article>
+
+              <article class="card plan-card">
+                <div class="plan-top">
+                  <h3 class="plan-title">Possible enterprise layer</h3>
+                  <div class="plan-price">
+                    <strong style="font-size: 2rem">Discovery</strong>
+                  </div>
+                </div>
+                <p>
+                  Potential ideas for organizations that need governance,
+                  compliance, and deployment flexibility.
+                </p>
+                <ul>
+                  <li>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#fbbf24"
+                      aria-hidden="true"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      ></path>
+                    </svg>
+                    SSO, SCIM, and RBAC
+                  </li>
+                  <li>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#fbbf24"
+                      aria-hidden="true"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      ></path>
+                    </svg>
+                    Audit log export and SIEM integration
+                  </li>
+                  <li>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#fbbf24"
+                      aria-hidden="true"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      ></path>
+                    </svg>
+                    Self-hosted or air-gapped deployment
+                  </li>
+                  <li>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#fbbf24"
+                      aria-hidden="true"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      ></path>
+                    </svg>
+                    Compliance reporting and DPA support
+                  </li>
+                  <li>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#fbbf24"
+                      aria-hidden="true"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      ></path>
+                    </svg>
+                    Not implemented in the current extension
+                  </li>
+                </ul>
+                <a
+                  class="button button-secondary"
+                  href="https://github.com/Leectan/secretshields/discussions"
+                  >Start a discussion</a
+                >
+              </article>
+            </div>
+            <p class="footnote">
+              Current release: one free, local-only extension. No account,
+              licensing backend, or managed service is required today.
+            </p>
+          </div>
+        </section>
+
+        <section class="cta">
+          <div class="container">
+            <div class="cta-panel">
+              <h2>Validate the public beta in your own workflow.</h2>
+              <p>
+                Install SecretShields for free and test the clipboard-first
+                masking flow in VS Code or Cursor before you make it part of
+                team habit.
+              </p>
+              <div class="cta-actions">
+                <a
+                  class="button button-primary"
+                  href="https://marketplace.visualstudio.com/items?itemName=secretshields.secretshields"
+                  >Install the public beta</a
+                >
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <div class="container footer-row">
+          <div class="brand">
+            <span class="brand-mark" aria-hidden="true">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                ></path>
+              </svg>
+            </span>
+            <span class="brand-name">SecretShields</span>
+          </div>
+          <div class="footer-links">
+            <a href="https://github.com/Leectan/secretshields"
+              >GitHub Repository</a
+            >
+            <a href="https://github.com/Leectan/secretshields/issues"
+              >Report an Issue</a
+            >
+            <a
+              href="https://marketplace.visualstudio.com/items?itemName=secretshields.secretshields"
+              >VS Code Marketplace</a
+            >
+          </div>
+          <div class="footer-meta">
+            &copy; 2026 SecretShields. MIT Licensed.
+          </div>
         </div>
-    </footer>
+      </footer>
+    </div>
 
     <script>
-        function formatCount(n) {
-            if (n >= 1000) return (Math.floor(n / 100) / 10).toFixed(1).replace(/\.0$/, '') + 'K';
-            return n.toString();
+      function formatCount(value) {
+        if (value >= 1000) {
+          return (
+            (Math.floor(value / 100) / 10).toFixed(1).replace(/\.0$/, "") + "K"
+          );
         }
-        fetch('stats.json')
-            .then(r => r.json())
-            .then(data => {
-                if (data.downloads > 0) {
-                    const badge = document.getElementById('download-badge');
-                    const count = document.getElementById('download-count');
-                    count.textContent = formatCount(data.downloads) + '+';
-                    badge.classList.remove('hidden');
-                    badge.classList.add('inline-flex');
-                }
-            })
-            .catch(() => {});
+        return String(value);
+      }
+
+      function formatDate(iso) {
+        try {
+          return new Date(iso).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            timeZone: "UTC",
+          });
+        } catch {
+          return "";
+        }
+      }
+
+      fetch("stats.json")
+        .then((response) => response.json())
+        .then((data) => {
+          if (typeof data.downloads === "number" && data.downloads > 0) {
+            const badge = document.getElementById("download-badge");
+            const count = document.getElementById("download-count");
+            count.textContent = formatCount(data.downloads) + "+";
+            badge.hidden = false;
+          }
+
+          if (data.updated) {
+            const updated = document.getElementById("stats-updated");
+            const formatted = formatDate(data.updated);
+            if (formatted) {
+              updated.textContent =
+                "Marketplace stats updated " + formatted + ".";
+              updated.hidden = false;
+            }
+          }
+        })
+        .catch(() => {});
     </script>
-</body>
+  </body>
 </html>
