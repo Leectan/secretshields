@@ -1,8 +1,9 @@
-# Public Beta Checklist
+# Release Validation Checklist
 
 Execute each step in order. Total time: ~15 minutes.
 
 ## Prerequisites
+
 - VS Code or Cursor with SecretShields installed (via VSIX or marketplace)
 - Default settings (or reset `secretshields.*` settings to defaults)
 

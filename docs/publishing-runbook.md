@@ -52,6 +52,7 @@ npx vsce ls --no-dependencies
 ```
 
 Ensure:
+
 - All unit tests pass
 - Integration tests pass (activation + command registration; clipboard test may skip in headless environments)
 - Lint is clean
@@ -59,11 +60,11 @@ Ensure:
 - No placeholder URLs remain in `package.json`
 - Version in `package.json` matches intended release
 
-> **Note:** Integration tests reduce risk but do not fully validate clipboard notifications or the editor paste widget. Run `docs/public-beta-checklist.md` once before publishing.
+> **Note:** Integration tests reduce risk but do not fully validate clipboard notifications or the editor paste widget. Run `docs/release-checklist.md` once before publishing.
 
-## 5. Execute `docs/public-beta-checklist.md`
+## 5. Execute `docs/release-checklist.md`
 
-Before tagging, manually run through the beta checklist in both VS Code and Cursor. Do not skip this — automated tests cannot cover clipboard rewriting UX or paste widget behavior.
+Before tagging, manually run through the release checklist in both VS Code and Cursor. Do not skip this — automated tests cannot cover clipboard rewriting UX or paste widget behavior.
 
 ## 6. Tag and Release
 
@@ -77,6 +78,7 @@ git push origin vX.Y.Z
 ```
 
 The `publish.yml` workflow will automatically:
+
 1. Install dependencies
 2. Build and test
 3. Package VSIX
@@ -124,12 +126,14 @@ Alternatively, use the [Marketplace Management Portal](https://marketplace.visua
 ### OpenVSX
 
 OpenVSX does not currently support unpublishing individual versions. Options:
+
 - Publish a new patch version with the fix
 - Contact OpenVSX maintainers via [GitHub issues](https://github.com/eclipse/openvsx/issues) for removal requests
 
 ### Emergency: Discontinue Extension
 
 If a critical security issue is found:
+
 1. Unpublish from both marketplaces immediately
 2. Open a GitHub issue tagged `security` describing the problem (without disclosing exploit details)
 3. Follow the responsible disclosure process in `SECURITY.md`
@@ -137,9 +141,9 @@ If a critical security issue is found:
 
 ## Secret Rotation Reminders
 
-| Secret | Where | Rotation |
-|--------|-------|----------|
+| Secret     | Where          | Rotation                                      |
+| ---------- | -------------- | --------------------------------------------- |
 | `VSCE_PAT` | GitHub Actions | Rotate annually (Azure DevOps PAT max expiry) |
-| `OVSX_PAT` | GitHub Actions | Rotate per OpenVSX policy |
+| `OVSX_PAT` | GitHub Actions | Rotate per OpenVSX policy                     |
 
 Set calendar reminders for PAT expiration dates.
